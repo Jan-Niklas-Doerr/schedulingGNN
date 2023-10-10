@@ -47,6 +47,25 @@ class Product:
     
 
 
+def define_product_operations(products,data):
+    for product in products:
+        for operation in data["operations_per_product"][product.name]:
+            op_stage = data["product_operation_stage"][product.name][operation]
+            op_resources = data["operation_machine_compatibility"][product.name][operation]
+            product.add_operation(operation, op_stage, op_resources)
+
+def define_resource_times(resources,products,data):
+    for resource in resources:
+        for product1 in products:
+            resource.add_setup_time("", product1, 0)
+            for product2 in products:
+                resource.add_setup_time(product1.name, product2.name, data["setup_time"][resource.name][product1.name][product2.name].get("mean"))
+
+            for product1_op_stage, product1_op_list in product1.operations.items():
+                for product1_op_name,product1_op_resources in product1_op_list:
+                    if resource.name in product1_op_resources:
+                        resource.add_processing_time(product1.name, product1_op_name, data["processing_time"][product1.name][product1_op_name][resource.name].get("mean") )
+             
 with open('data/useCase_2_stages.json', 'r') as file:
     data = json.load(file)
 
@@ -55,27 +74,11 @@ with open('data/useCase_2_stages.json', 'r') as file:
 NR_STAGES = data["NrStages"]
 operations = data["operations"]
 products = [Product(name) for name in data["products"]]
-
 resources = [Resource(name, data["resource_stage"][name]) for name in data["resources"]]
 
-for product in products:
-    for operation in data["operations_per_product"][product.name]:
-        op_stage = data["product_operation_stage"][product.name][operation]
-        op_resources = data["operation_machine_compatibility"][product.name][operation]
-        product.add_operation(operation, op_stage, op_resources)
-
-
-for resource in resources:
-    for product1 in products:
-        resource.add_setup_time("", product1, 0)
-        for product2 in products:
-            resource.add_setup_time(product1.name, product2.name, data["setup_time"][resource.name][product1.name][product2.name].get("mean"))
-
-        for product1_op_stage, product1_op_list in product1.operations.items():
-            for product1_op_name,product1_op_resources in product1_op_list:
-                if resource.name in product1_op_resources:
-                    resource.add_processing_time(product1.name, product1_op_name, data["processing_time"][product1.name][product1_op_name][resource.name].get("mean") )
-                
+define_product_operations(products,data)
+define_resource_times(resources,products,data)
+   
 # SIMULATION
 
 # process orders - simulate
