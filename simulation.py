@@ -29,7 +29,7 @@ class Resource:
 
 class Product:
 
-    # "name" -> (stage, [resorces] )
+    # stage -> ("name", [resorces] )
     # operations = {}
 
     def __init__(self, name, operation_dict = None ):
@@ -38,9 +38,12 @@ class Product:
         else:
             self.operations = operation_dict
         self.name = name
-
     def add_operation(self,operation_name, stage,resources):
-        self.operations[operation_name] = (stage,resources) 
+        
+        try:
+            self.operations[stage].append((operation_name,resources))
+        except KeyError:
+            self.operations[stage] = [(operation_name,resources)]
     
 
 
@@ -68,11 +71,11 @@ for resource in resources:
         for product2 in products:
             resource.add_setup_time(product1.name, product2.name, data["setup_time"][resource.name][product1.name][product2.name].get("mean"))
 
-        for product1_op_name, product1_op_info in product1.operations.items():
-            if resource.name in product1_op_info[1]:
-                resource.add_processing_time(product1.name, product1_op_name, data["processing_time"][product1.name][product1_op_name][resource.name].get("mean") )
+        for product1_op_stage, product1_op_list in product1.operations.items():
+            for product1_op_name,product1_op_resources in product1_op_list:
+                if resource.name in product1_op_resources:
+                    resource.add_processing_time(product1.name, product1_op_name, data["processing_time"][product1.name][product1_op_name][resource.name].get("mean") )
                 
-
 # SIMULATION
 
 # process orders - simulate
