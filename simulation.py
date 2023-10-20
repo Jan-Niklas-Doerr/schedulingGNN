@@ -31,11 +31,15 @@ class Resource:
 class Product:
 
 
-    def __init__(self, ord_name, due_date, product_name ):
+    def __init__(self, order_name, due_date, product_name ):
         
-        self.ord_name = ord_name
+        self.order_name = order_name
         self.due_date = due_date
         self.product_name = product_name
+        self.current_stage = 1
+
+    def increase_stage(self):
+        self.current_stage = self.current_stage + 1
 
     def __lt__(self, obj):
         return self.due_date < obj.due_date
@@ -88,10 +92,10 @@ def initialize_stages(resources, stages):
         stages[resource.stage-1].append(resource)
     return stages
     
-def initialize_orders(orders, st_0_resources, products):
+def initialize_orders(orders, st_0_resources, products, action_list):
 
-    # {product_name_1 : {stage_1 -> ("name", [resorces]), ...} , 
-    #      product_name_2 : {stage_1 -> ("name", [resorces]), ...}  ... }
+    # {product_name_1 : {stage_1 -> ("name", [resorce_names]), ...} , 
+    #      product_name_2 : {stage_1 -> ("name", [resorce_names]), ...}  ... }
 
     # Order ==> priority queue (deadline, ord_num, product_name )
 
@@ -100,9 +104,12 @@ def initialize_orders(orders, st_0_resources, products):
 
         while not orders.empty():
             order = orders.get()
-            print( products[order.product_name])
-            if resource in products[order.product_name][1][0][1]:
+            if resource.name in products[order.product_name][order.current_stage][0][1]:
+                resource.is_occupied = True
+                resource.last_product = order.product_name
+                order.increase_stage()
                 
+                action_list.put((resource.processing_times[(order.product_name, products[order.product_name][order.current_stage-1][0][0])], order ))
                 # set action
                 break
             else:
@@ -114,8 +121,8 @@ def initialize_orders(orders, st_0_resources, products):
 
 def form_orders(orders):
     ordered = PriorityQueue()
-    for ord_name, args in orders.items():
-        ordered.put(Product(ord_name, args["due_date"], args["product"]))
+    for order_name, args in orders.items():
+        ordered.put(Product(order_name, args["due_date"], args["product"]))
     return ordered
 
 with open('data/useCase_2_stages.json', 'r') as file:
@@ -152,8 +159,11 @@ waiting_action_list = []
 
 time = 0
 
-initialize_orders(orders, stages[0], products)
+initialize_orders(orders, stages[0], products, action_list)
 
+while not action_list.empty():
+    time, prod = action_list.get()
+    print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage)
 
     # take action(s)
     # validity check of action
