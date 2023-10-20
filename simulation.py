@@ -83,15 +83,26 @@ def initialize_stages(resources, stages):
         stages[resource.stage-1].append(resource)
     return stages
     
-def initialize_orders(orders, resources):
-    return
-    for resource in resources:
+def initialize_orders(orders, st_0_resources, products):
+
+    # {product_name_1 : {stage_1 -> ("name", [resorces]), ...} , 
+    #      product_name_2 : {stage_1 -> ("name", [resorces]), ...}  ... }
+
+    # Order ==> priority queue (deadline, ord_num, product_name )
+
+    for resource in st_0_resources:
         invalid_orders = []
 
-        while True:
+        while not orders.empty():
             order = orders.get()
-            
-            
+            if resource in products[order[2]][0][1]:
+                # set action
+                break
+            else:
+                invalid_orders.append(order)
+        
+        for remained_order in invalid_orders:
+            orders.put(remained_order)
 
 
 def form_orders(orders):
@@ -116,8 +127,9 @@ resources = [Resource(name, data["resource_stage"][name]) for name in data["reso
 define_resource_times(resources,products,data)
 
 stages = initialize_stages(resources, [ [] for _ in range(NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
-orders = form_orders(data["orders"]) # priority queue (deadline, [ ord_num, product ] )
+orders = form_orders(data["orders"]) # priority queue (deadline, ord_num, product_name )
 
+remaining_orders = data["orders"]
    
 # SIMULATION
 """
@@ -134,7 +146,7 @@ waiting_action_list = []
 
 time = 0
 
-initialize_orders(orders, stages[0])
+initialize_orders(orders, stages[0], products)
 
 
     # take action(s)
