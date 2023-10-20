@@ -28,29 +28,34 @@ class Resource:
     def add_processing_time(self, product, operation, time):
         self.processing_times[(product, operation)] = time
 
-"""
 class Product:
 
-    # stage -> ("name", [resorces] )
-    # operations = {}
 
-    def __init__(self, name, due_date, operation_dict = None ):
-        if operation_dict == None:
-            self.operations = {}
-        else:
-            self.operations = operation_dict
-        self.name = name
-        self.due_date = due_date
-
-    def add_operation(self,operation_name, stage,resources):
+    def __init__(self, ord_name, due_date, product_name ):
         
-        try:
-            self.operations[stage].append((operation_name,resources))
-        except KeyError:
-            self.operations[stage] = [(operation_name,resources)]
+        self.ord_name = ord_name
+        self.due_date = due_date
+        self.product_name = product_name
 
-"""
+    def __lt__(self, obj):
+        return self.due_date < obj.due_date
 
+    def __le__(self, obj):
+        return self.due_date <= obj.due_date
+
+    def __eq__(self, obj):
+        return self.due_date == obj.due_date
+
+    def __ne__(self, obj):
+        return self.due_date != obj.due_date
+
+    def __gt__(self, obj):
+        return self.due_date > obj.due_date
+
+    def __ge__(self, obj):
+        return self.due_date >= obj.due_date
+
+   
 def define_product_operations(products,data):
 
     new_products = {}
@@ -95,7 +100,9 @@ def initialize_orders(orders, st_0_resources, products):
 
         while not orders.empty():
             order = orders.get()
-            if resource in products[order[2]][0][1]:
+            print( products[order.product_name])
+            if resource in products[order.product_name][1][0][1]:
+                
                 # set action
                 break
             else:
@@ -108,7 +115,7 @@ def initialize_orders(orders, st_0_resources, products):
 def form_orders(orders):
     ordered = PriorityQueue()
     for ord_name, args in orders.items():
-        ordered.put((args["due_date"],ord_name,args["product"]))
+        ordered.put(Product(ord_name, args["due_date"], args["product"]))
     return ordered
 
 with open('data/useCase_2_stages.json', 'r') as file:
@@ -128,7 +135,6 @@ define_resource_times(resources,products,data)
 
 stages = initialize_stages(resources, [ [] for _ in range(NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
 orders = form_orders(data["orders"]) # priority queue (deadline, ord_num, product_name )
-
 remaining_orders = data["orders"]
    
 # SIMULATION
