@@ -109,7 +109,7 @@ def initialize_orders(orders, st_0_resources, products, action_list):
                 resource.last_product = order.product_name
                 order.increase_stage()
                 
-                action_list.put((resource.processing_times[(order.product_name, products[order.product_name][order.current_stage-1][0][0])], order ))
+                action_list.put((resource.processing_times[(order.product_name, products[order.product_name][order.current_stage-1][0][0])], order,resource ))
                 # set action
                 break
             else:
@@ -162,8 +162,8 @@ time = 0
 initialize_orders(orders, stages[0], products, action_list)
 
 while not action_list.empty():
-    time, prod = action_list.get()
-    print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage)
+    time, prod ,resource= action_list.get()
+    print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name)
 
     # take action(s)
     # validity check of action
