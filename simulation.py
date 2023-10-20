@@ -68,7 +68,15 @@ def define_resource_times(resources,products,data):
              
 
 def initialize_orders(orders, action_list):
-    pass
+    return
+    for resource in resources:
+        pass
+
+def initialize_stages(resources, stages):
+    for resource in resources:
+        stages[resource.stage-1].append(resource)
+    return stages
+    
 
 def form_orders(orders):
     ordered = PriorityQueue()
@@ -82,12 +90,14 @@ with open('data/useCase_2_stages.json', 'r') as file:
 # Accessing data
 
 NR_STAGES = data["NrStages"]
+stages = [ [] for _ in range(NR_STAGES) ]
 operations = data["operations"]
 products = [Product(name) for name in data["products"]]
 resources = [Resource(name, data["resource_stage"][name]) for name in data["resources"]]
 
 define_product_operations(products,data)
 define_resource_times(resources,products,data)
+stages = initialize_stages(resources, stages)
    
 # SIMULATION
 """
@@ -107,11 +117,6 @@ time = 0
 orders = form_orders(orders)
 
 initialize_orders(orders, action_list)
-
-
-
-
-
 
 
     # take action(s)
