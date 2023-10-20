@@ -28,60 +28,76 @@ class Resource:
     def add_processing_time(self, product, operation, time):
         self.processing_times[(product, operation)] = time
 
+"""
 class Product:
 
     # stage -> ("name", [resorces] )
     # operations = {}
 
-    def __init__(self, name, operation_dict = None ):
+    def __init__(self, name, due_date, operation_dict = None ):
         if operation_dict == None:
             self.operations = {}
         else:
             self.operations = operation_dict
         self.name = name
+        self.due_date = due_date
+
     def add_operation(self,operation_name, stage,resources):
         
         try:
             self.operations[stage].append((operation_name,resources))
         except KeyError:
             self.operations[stage] = [(operation_name,resources)]
-    
+
+"""
 
 def define_product_operations(products,data):
+
+    new_products = {}
     for product in products:
-        for operation in data["operations_per_product"][product.name]:
-            op_stage = data["product_operation_stage"][product.name][operation]
-            op_resources = data["operation_machine_compatibility"][product.name][operation]
-            product.add_operation(operation, op_stage, op_resources)
+        new_products[product] = {}
+        for operation in data["operations_per_product"][product]:
+            op_stage = data["product_operation_stage"][product][operation]
+            op_resources = data["operation_machine_compatibility"][product][operation]
+            try:
+                new_products[product][op_stage].append((operation,op_resources))
+            except KeyError:
+                new_products[product][op_stage] = [(operation,op_resources)]
+    
+    return new_products
 
 def define_resource_times(resources,products,data):
     for resource in resources:
-        for product1 in products:
+        for product1, operations in products.items():
             resource.add_setup_time("", product1, 0)
             for product2 in products:
-                resource.add_setup_time(product1.name, product2.name, data["setup_time"][resource.name][product1.name][product2.name].get("mean"))
+                resource.add_setup_time(product1, product2, data["setup_time"][resource.name][product1][product2].get("mean"))
 
-            for product1_op_stage, product1_op_list in product1.operations.items():
+            for product1_op_stage, product1_op_list in operations.items():
                 for product1_op_name,product1_op_resources in product1_op_list:
                     if resource.name in product1_op_resources:
-                        resource.add_processing_time(product1.name, product1_op_name, data["processing_time"][product1.name][product1_op_name][resource.name].get("mean") )
+                        resource.add_processing_time(product1, product1_op_name, data["processing_time"][product1][product1_op_name][resource.name].get("mean") )
              
-
-def initialize_orders(orders, action_list):
-    return
-    for resource in resources:
-        pass
-
 def initialize_stages(resources, stages):
     for resource in resources:
         stages[resource.stage-1].append(resource)
     return stages
     
+def initialize_orders(orders, resources):
+    return
+    for resource in resources:
+        invalid_orders = []
+
+        while True:
+            order = orders.get()
+            
+            
+
 
 def form_orders(orders):
     ordered = PriorityQueue()
     for ord_name, args in orders.items():
-        ordered.put((args["due_date"],[ord_name,args["product"]]))
+        ordered.put((args["due_date"],ord_name,args["product"]))
     return ordered
 
 with open('data/useCase_2_stages.json', 'r') as file:
@@ -92,31 +108,31 @@ with open('data/useCase_2_stages.json', 'r') as file:
 NR_STAGES = data["NrStages"]
 stages = [ [] for _ in range(NR_STAGES) ]
 operations = data["operations"]
-products = [Product(name) for name in data["products"]]
+products = [name for name in data["products"]]
 resources = [Resource(name, data["resource_stage"][name]) for name in data["resources"]]
 
-define_product_operations(products,data)
+products = define_product_operations(products,data)
+
 define_resource_times(resources,products,data)
-stages = initialize_stages(resources, stages)
+stages = initialize_stages(resources, stages) # [[resource_list_of_stage_1],[#2], ... ]
+orders = data["orders"] # priority queue (deadline, [ ord_num, product ] )
+
    
 # SIMULATION
-"""
-for p in products:
-    print(p.name, p.operations)
+for p,op in products.items():
+    print(p, op)
 
 for r in resources:
     print(r.name, r.processing_times)
-"""
 # process orders - simulate
 
-orders = data["orders"]
 action_list = PriorityQueue()
 waiting_action_list = []
 
 time = 0
 orders = form_orders(orders)
 
-initialize_orders(orders, action_list)
+initialize_orders(orders, stages[0])
 
 
     # take action(s)
