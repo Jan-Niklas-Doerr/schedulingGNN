@@ -106,31 +106,33 @@ with open('data/useCase_2_stages.json', 'r') as file:
 # Accessing data
 
 NR_STAGES = data["NrStages"]
-stages = [ [] for _ in range(NR_STAGES) ]
 operations = data["operations"]
-products = [name for name in data["products"]]
-resources = [Resource(name, data["resource_stage"][name]) for name in data["resources"]]
 
+# {product_name_1 : {stage_1 -> ("name", [resorces], ...} , product_name_2 : {stage_1 -> ("name", [resorces], ...} }
+products = [name for name in data["products"]]
 products = define_product_operations(products,data)
 
+resources = [Resource(name, data["resource_stage"][name]) for name in data["resources"]]
 define_resource_times(resources,products,data)
-stages = initialize_stages(resources, stages) # [[resource_list_of_stage_1],[#2], ... ]
-orders = data["orders"] # priority queue (deadline, [ ord_num, product ] )
+
+stages = initialize_stages(resources, [ [] for _ in range(NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
+orders = form_orders(data["orders"]) # priority queue (deadline, [ ord_num, product ] )
 
    
 # SIMULATION
+"""
 for p,op in products.items():
     print(p, op)
 
 for r in resources:
     print(r.name, r.processing_times)
+"""
 # process orders - simulate
 
 action_list = PriorityQueue()
 waiting_action_list = []
 
 time = 0
-orders = form_orders(orders)
 
 initialize_orders(orders, stages[0])
 
