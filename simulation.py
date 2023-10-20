@@ -1,5 +1,6 @@
 import numpy as np
 import json
+from queue import PriorityQueue
 
 
 class Resource:
@@ -46,7 +47,6 @@ class Product:
             self.operations[stage] = [(operation_name,resources)]
     
 
-
 def define_product_operations(products,data):
     for product in products:
         for operation in data["operations_per_product"][product.name]:
@@ -66,6 +66,16 @@ def define_resource_times(resources,products,data):
                     if resource.name in product1_op_resources:
                         resource.add_processing_time(product1.name, product1_op_name, data["processing_time"][product1.name][product1_op_name][resource.name].get("mean") )
              
+
+def initialize_orders(orders, action_list):
+    pass
+
+def form_orders(orders):
+    ordered = PriorityQueue()
+    for ord_name, args in orders.items():
+        ordered.put((args["due_date"],[ord_name,args["product"]]))
+    return ordered
+
 with open('data/useCase_2_stages.json', 'r') as file:
     data = json.load(file)
 
@@ -80,5 +90,31 @@ define_product_operations(products,data)
 define_resource_times(resources,products,data)
    
 # SIMULATION
+"""
+for p in products:
+    print(p.name, p.operations)
 
+for r in resources:
+    print(r.name, r.processing_times)
+"""
 # process orders - simulate
+
+orders = data["orders"]
+action_list = PriorityQueue()
+waiting_action_list = []
+
+time = 0
+orders = form_orders(orders)
+
+initialize_orders(orders, action_list)
+
+
+
+
+
+
+
+    # take action(s)
+    # validity check of action
+    # update time
+    
