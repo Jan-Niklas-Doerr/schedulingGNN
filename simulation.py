@@ -105,11 +105,16 @@ def initialize_orders(orders, st_0_resources, products, action_list):
         while not orders.empty():
             order = orders.get()
             if resource.name in products[order.product_name][order.current_stage][0][1]:
+
+                # Action Process !!!!
+
+                time_required = resource.processing_times[(order.product_name, products[order.product_name][order.current_stage][0][0])] + resource.setup_times[(resource.last_product,order.product_name)] # TO DO
+
                 resource.is_occupied = True
                 resource.last_product = order.product_name
                 order.increase_stage()
                 
-                action_list.put((resource.processing_times[(order.product_name, products[order.product_name][order.current_stage-1][0][0])], order,resource ))
+                action_list.put((time_required, order,resource ))
                 # set action
                 break
             else:
