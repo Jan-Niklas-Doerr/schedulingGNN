@@ -150,7 +150,6 @@ define_resource_times(resources,products,data)
 
 stages = initialize_stages(resources, [ [] for _ in range(NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
 orders = form_orders(data["orders"]) # priority queue (deadline, ord_num, product_name )
-remaining_orders = data["orders"]
    
 # SIMULATION
 """
@@ -168,6 +167,7 @@ action_list = PriorityQueue()
 waiting_action_list = []
 
 time = 0
+success = 0
 
 process_new_orders(time, orders, stages[0], products, action_list)
 
@@ -181,6 +181,9 @@ while not action_list.empty():
         print("Order No: " , prod.order_name, " is produced at time: ", time)
         print("Duedate was: ", prod.due_date)
         print()
+        if prod.due_date >= time:
+            success += 1
+
         for i in range(len(waiting_action_list)):
             prod_t, resource_t = waiting_action_list[i]
             if resource.name in products[prod_t.product_name][prod_t.current_stage][0][1] :
@@ -225,4 +228,5 @@ while not action_list.empty():
     # validity check of action
     # update time
     
-print("All products are successfully produced at time: ", time)
+print("All products are produced at time: ", time)
+print("From total ", len(data["orders"]), " order, ", success, " was before their due dates.")
