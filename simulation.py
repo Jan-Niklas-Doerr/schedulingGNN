@@ -229,4 +229,4 @@ while not action_list.empty():
     # update time
     
 print("All products are produced at time: ", time)
-print("From total ", len(data["orders"]), " order, ", success, " was before their due dates.")
+print("From total ", len(data["orders"]), " order, ", success, " was before their due dates. Success rate is: ", round((success / len(data["orders"]) * 100), 2) , "%" )
