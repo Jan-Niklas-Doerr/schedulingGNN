@@ -174,7 +174,7 @@ process_new_orders(time, orders, stages[0], products, action_list)
 while not action_list.empty():
 
     time, prod, resource= action_list.get()
-    # print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name)
+    # print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name, resource.stage)
 
     if prod.current_stage == NR_STAGES + 1 :
         resource.is_occupied = False
@@ -194,12 +194,11 @@ while not action_list.empty():
 
 
     assigned = False
-    for resource in stages[prod.current_stage -1]:
-        if not resource.is_occupied and resource.name in products[prod.product_name][prod.current_stage][0][1] :
-            occupy_resource(time, resource, prod, action_list)
+    for rs in stages[prod.current_stage -1]:
+        if not rs.is_occupied and rs.name in products[prod.product_name][prod.current_stage][0][1] :
+            occupy_resource(time, rs, prod, action_list)
             assigned = True
             resource.is_occupied = False
-
             break
 
     if not assigned:
@@ -216,8 +215,7 @@ while not action_list.empty():
                 break
 
 
-
-    if resource.stage == 0 and not orders.empty():
+    if resource.stage == 1 and not orders.empty():
         process_new_orders(time, orders, [resource], products, action_list)
 
 
