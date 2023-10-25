@@ -28,7 +28,7 @@ class Resource:
     def add_processing_time(self, product, operation, time):
         self.processing_times[(product, operation)] = time
 
-class Product:
+class Order:
 
 
     def __init__(self, order_name, due_date, product_name ):
@@ -92,29 +92,32 @@ def initialize_stages(resources, stages):
         stages[resource.stage-1].append(resource)
     return stages
     
-def initialize_orders(orders, st_0_resources, products, action_list):
 
-    # {product_name_1 : {stage_1 -> ("name", [resorce_names]), ...} , 
-    #      product_name_2 : {stage_1 -> ("name", [resorce_names]), ...}  ... }
+def occupy_resource(time, resource, order, action_list):
+    finish_time = time + resource.processing_times[(order.product_name, products[order.product_name][order.current_stage][0][0])] + resource.setup_times[(resource.last_product,order.product_name)] 
+
+    resource.is_occupied = True
+    resource.last_product = order.product_name
+    order.increase_stage()
+    
+    action_list.put((finish_time, order,resource ))
+
+def process_new_orders(time, orders, resources, products, action_list):
+
+    # {product_name_1 : {stage_1 -> [("name", [resorce_names]), ...]} , 
+    #      product_name_2 : {stage_1 -> [("name", [resorce_names]), ...]}  
+    #   ... }
 
     # Order ==> priority queue (deadline, ord_num, product_name )
 
-    for resource in st_0_resources:
+    for resource in resources:
         invalid_orders = []
 
         while not orders.empty():
             order = orders.get()
             if resource.name in products[order.product_name][order.current_stage][0][1]:
 
-                # Action Process !!!!
-
-                time_required = resource.processing_times[(order.product_name, products[order.product_name][order.current_stage][0][0])] + resource.setup_times[(resource.last_product,order.product_name)] # TO DO
-
-                resource.is_occupied = True
-                resource.last_product = order.product_name
-                order.increase_stage()
-                
-                action_list.put((time_required, order,resource ))
+                occupy_resource(time, resource, order, action_list)
                 # set action
                 break
             else:
@@ -127,7 +130,7 @@ def initialize_orders(orders, st_0_resources, products, action_list):
 def form_orders(orders):
     ordered = PriorityQueue()
     for order_name, args in orders.items():
-        ordered.put(Product(order_name, args["due_date"], args["product"]))
+        ordered.put(Order(order_name, args["due_date"], args["product"]))
     return ordered
 
 with open('data/useCase_2_stages.json', 'r') as file:
@@ -160,17 +163,41 @@ for r in resources:
 # process orders - simulate
 
 action_list = PriorityQueue()
+# [(finish_time, order, resource) ... ]
+
 waiting_action_list = []
 
 time = 0
 
-initialize_orders(orders, stages[0], products, action_list)
+process_new_orders(time, orders, stages[0], products, action_list)
 
 while not action_list.empty():
-    time, prod ,resource= action_list.get()
-    print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name)
+
+    # time, prod, resource= action_list.get()
+    # print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name)
+
+    time, prod, resource = action_list.get()
+
+    resource.is_occupied = False
+
+    assigned = False
+    for resource in stages[prod.current_stage]:
+        if resource.name in products[prod.product_name][prod.current_stage][0][1]:
+            occupy_resource(time, resource, prod, action_list)
+            assigned = True
+            break
+
+    if not assigned:
+        waiting_action_list.append((time, prod, resource))
+    
+    if resource.stage == 0:
+        process_new_orders(time, orders, [resource], products, action_list)
+
+
+
 
     # take action(s)
     # validity check of action
     # update time
     
+print("All products are successfully produced at time " + time)
