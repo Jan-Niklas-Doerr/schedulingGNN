@@ -102,6 +102,16 @@ def occupy_resource(time, resource, order, action_list):
     
     action_list.put((finish_time, order,resource ))
 
+def check_waiting_list(time, waiting_action_list, action_list, resource):
+    for i in range(len(waiting_action_list)):
+            prod_t, resource_t = waiting_action_list[i]
+            if resource.name in products[prod_t.product_name][prod_t.current_stage][0][1] :
+                occupy_resource(time, resource, prod_t, action_list)
+                resource.is_occupied = True
+                resource_t.is_occupied = False
+                waiting_action_list.pop(i)
+                break
+
 def process_new_orders(time, orders, resources, products, action_list):
 
     # {product_name_1 : {stage_1 -> [("name", [resorce_names]), ...]} , 
@@ -184,15 +194,7 @@ while not action_list.empty():
         if prod.due_date >= time:
             success += 1
 
-        for i in range(len(waiting_action_list)):
-            prod_t, resource_t = waiting_action_list[i]
-            if resource.name in products[prod_t.product_name][prod_t.current_stage][0][1] :
-                occupy_resource(time, resource, prod_t, action_list)
-                assigned = True
-                resource.is_occupied = True
-                resource_t.is_occupied = False
-                waiting_action_list.pop(i)
-                break
+        check_waiting_list(time, waiting_action_list, action_list, resource)
         continue
 
 
@@ -207,15 +209,8 @@ while not action_list.empty():
     if not assigned:
         waiting_action_list.append((prod, resource))
     else:
-        for i in range(len(waiting_action_list)):
-            prod_t, resource_t = waiting_action_list[i]
-            if resource.name in products[prod_t.product_name][prod_t.current_stage][0][1] :
-                occupy_resource(time, resource, prod_t, action_list)
-                assigned = True
-                resource.is_occupied = True
-                resource_t.is_occupied = False
-                waiting_action_list.pop(i)
-                break
+        check_waiting_list(time, waiting_action_list, action_list, resource)
+
 
 
     if resource.stage == 1 and not orders.empty():
