@@ -125,10 +125,10 @@ def process_new_orders(time, orders, resources, products, action_list):
 
         while not orders.empty():
             order = orders.get()
+
             if resource.name in products[order.product_name][order.current_stage ][0][1]:
 
                 occupy_resource(time, resource, order, action_list)
-                # set action
                 break
             else:
                 invalid_orders.append(order)
@@ -169,7 +169,6 @@ for p,op in products.items():
 for r in resources:
     print(r.name, r.processing_times)
 """
-# process orders - simulate
 
 action_list = PriorityQueue()
 # [(finish_time, order, resource) ... ]
@@ -179,7 +178,7 @@ waiting_action_list = []
 time = 0
 success = 0
 
-process_new_orders(time, orders, stages[0], products, action_list)
+process_new_orders(time, orders, stages[0], products, action_list) ## ACTION
 
 while not action_list.empty():
 
@@ -187,21 +186,21 @@ while not action_list.empty():
     # print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name, resource.stage)
 
     if prod.current_stage == NR_STAGES + 1 :
+
         resource.is_occupied = False
         print("Order No: " , prod.order_name, " is produced at time: ", time)
-        print("Duedate was: ", prod.due_date)
-        print()
+        print("Duedate was: ", prod.due_date, "\n")
+        
         if prod.due_date >= time:
             success += 1
 
-        check_waiting_list(time, waiting_action_list, action_list, resource)
+        check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
         continue
 
-
     assigned = False
-    for rs in stages[prod.current_stage -1]:
-        if not rs.is_occupied and rs.name in products[prod.product_name][prod.current_stage][0][1] :
-            occupy_resource(time, rs, prod, action_list)
+    for resource_t in stages[prod.current_stage -1]:
+        if not resource_t.is_occupied and resource_t.name in products[prod.product_name][prod.current_stage][0][1] :
+            occupy_resource(time, resource_t, prod, action_list)  ## ACTION
             assigned = True
             resource.is_occupied = False
             break
@@ -209,19 +208,10 @@ while not action_list.empty():
     if not assigned:
         waiting_action_list.append((prod, resource))
     else:
-        check_waiting_list(time, waiting_action_list, action_list, resource)
-
-
+        check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
 
     if resource.stage == 1 and not orders.empty():
-        process_new_orders(time, orders, [resource], products, action_list)
-
-
-
-
-    # take action(s)
-    # validity check of action
-    # update time
+        process_new_orders(time, orders, [resource], products, action_list) ## ACTION
     
 print("All products are produced at time: ", time)
 print("From total ", len(data["orders"]), " order, ", success, " was before their due dates. Success rate is: ", round((success / len(data["orders"]) * 100), 2) , "%" )
