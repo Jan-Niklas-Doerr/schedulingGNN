@@ -34,7 +34,21 @@ class Resource:
 
     def __lt__(self, obj):
         return self.name < obj.name
+    
+    def __le__(self, obj):
+        return self.name <= obj.name
 
+    def __eq__(self, obj):
+        return self.name == obj.name
+
+    def __ne__(self, obj):
+        return self.name != obj.name
+
+    def __gt__(self, obj):
+        return self.name > obj.name
+
+    def __ge__(self, obj):
+        return self.name >= obj.name
 
 class Order:
 
@@ -53,7 +67,7 @@ class Order:
         self.current_stage = self.current_stage + 1
 
     def __lt__(self, obj):
-        return self.due_date < obj.due_date
+        return self.due_date < obj.due_date # if self.due_date != obj.due_date else self.order_name < obj.order_name
 
     def __le__(self, obj):
         return self.due_date <= obj.due_date
