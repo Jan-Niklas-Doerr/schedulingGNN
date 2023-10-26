@@ -195,18 +195,20 @@ while not action_list.empty():
         check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
         continue
 
+    resource.is_occupied = False
+    check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
+
+
     assigned = False
     for resource_t in stages[prod.current_stage -1]:
         if not resource_t.is_occupied and resource_t.name in products[prod.product_name][prod.current_stage][0][1] :
             occupy_resource(time, resource_t, prod, action_list)  ## ACTION
             assigned = True
-            resource.is_occupied = False
             break
 
     if not assigned:
         waiting_action_list.append((prod, resource))
-    else:
-        check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
+    
 
     if resource.stage == 1 and not orders.empty():
         process_new_orders(time, orders, [resource], products, action_list) ## ACTION
