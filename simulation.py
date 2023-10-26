@@ -92,7 +92,6 @@ def initialize_stages(resources, stages):
         stages[resource.stage-1].append(resource)
     return stages
     
-
 def occupy_resource(time, resource, order, action_list):
     finish_time = time + resource.processing_times[(order.product_name, products[order.product_name][order.current_stage ][0][0])] + resource.setup_times[(resource.last_product,order.product_name)] 
 
@@ -135,7 +134,6 @@ def process_new_orders(time, orders, resources, products, action_list):
         
         for remained_order in invalid_orders:
             orders.put(remained_order)
-
 
 def form_orders(orders):
     ordered = PriorityQueue()
