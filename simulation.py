@@ -19,6 +19,10 @@ class Resource:
         self.last_product = "" # Update when product process
         self.is_occupied = False
     
+    def __repr__(self):
+        return "[ " + self.name + " " + str(self.stage) + " ]"
+
+
     def set_stage(self, stage):
         self.stage = stage
 
@@ -37,6 +41,9 @@ class Order:
         self.due_date = due_date
         self.product_name = product_name
         self.current_stage = 1
+
+    def __repr__(self):
+        return "[ " + self.order_name + " " + str(self.due_date) + " " + self.product_name + " ]"
 
     def increase_stage(self):
         self.current_stage = self.current_stage + 1
@@ -102,6 +109,7 @@ def occupy_resource(time, resource, order, action_list):
     action_list.put((finish_time, order,resource ))
 
 def check_waiting_list(time, waiting_action_list, action_list, resource):
+    #print("Checkin waiting list length: ", len(waiting_action_list))
     for i in range(len(waiting_action_list)):
             prod_t, resource_t = waiting_action_list[i]
             if resource.name in products[prod_t.product_name][prod_t.current_stage][0][1] :
@@ -109,7 +117,9 @@ def check_waiting_list(time, waiting_action_list, action_list, resource):
                 resource.is_occupied = True
                 resource_t.is_occupied = False
                 waiting_action_list.pop(i)
+                #print("We popped element, new length: ", len(waiting_action_list), "\n")
                 break
+    
 
 def process_new_orders(time, orders, resources, products, action_list):
 
@@ -176,6 +186,7 @@ waiting_action_list = []
 time = 0
 success = 0
 
+
 process_new_orders(time, orders, stages[0], products, action_list) ## ACTION
 
 while not action_list.empty():
@@ -186,7 +197,7 @@ while not action_list.empty():
     if prod.current_stage == NR_STAGES + 1 :
 
         resource.is_occupied = False
-        print("Order No: " , prod.order_name, " is produced at time: ", time)
+        print("Order No: " , prod.order_name, " order product: ",prod.product_name , " is produced at time: ", time)
         print("Duedate was: ", prod.due_date, "\n")
         
         if prod.due_date >= time:
