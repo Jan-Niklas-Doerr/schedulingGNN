@@ -84,222 +84,225 @@ class Order:
     def __ge__(self, obj):
         return self.due_date >= obj.due_date
 
-   
-def define_product_operations(products,data):
+class Env:
 
-    new_products = {}
-    for product in products:
-        new_products[product] = {}
-        for operation in data["operations_per_product"][product]:
-            op_stage = data["product_operation_stage"][product][operation]
-            op_resources = data["operation_machine_compatibility"][product][operation]
-            try:
-                new_products[product][op_stage].append((operation,op_resources))
-            except KeyError:
-                new_products[product][op_stage] = [(operation,op_resources)]
-    
-    return new_products
+    def __init__(self, data ):
+        with open('data/useCase_2_stages.json', 'r') as file:
+            data = json.load(file)
 
-def define_resource_times(resources,products,data):
-    for resource in resources:
-        for product1, operations in products.items():
-            resource.add_setup_time("", product1, 0)
-            for product2 in products:
-                resource.add_setup_time(product1, product2, data["setup_time"][resource.name][product1][product2].get("mean"))
+        # Accessing data
 
-            for product1_op_stage, product1_op_list in operations.items():
-                for product1_op_name,product1_op_resources in product1_op_list:
-                    if resource.name in product1_op_resources:
-                        resource.add_processing_time(product1, product1_op_name, data["processing_time"][product1][product1_op_name][resource.name].get("mean") )
-             
-def initialize_stages(resources, stages):
-    for resource in resources:
-        stages[resource.stage-1].append(resource)
-    return stages
-    
-def occupy_resource(time, resource, order, action_list):
-    finish_time = time + resource.processing_times[(order.product_name, products[order.product_name][order.current_stage ][0][0])] + resource.setup_times[(resource.last_product,order.product_name)] 
+        self.NR_STAGES = data["NrStages"]
+        self.operations = data["operations"]
 
-    resource.is_occupied = True
-    resource.last_product = order.product_name
-    order.increase_stage()
-    
-    action_list.put((finish_time, order,resource ))
+        # {product_name_1 : {stage_1 -> ("name", [resorces], ...} , product_name_2 : {stage_1 -> ("name", [resorces], ...} }
+        self.products = [name for name in data["products"]]
+        self.products = define_product_operations(self.products,data)
 
-def check_waiting_list(time, waiting_action_list, action_list, resource):
+        self.resources = [Resource(name, data["resource_stage"][name]) for name in data["resources"]]
+        define_resource_times(self.resources,self.products,data)
 
-    """
-    for i in range(len(waiting_action_list)):
-        prod_t, resource_t = waiting_action_list[i]
-        if resource.name in products[prod_t.product_name][prod_t.current_stage][0][1] :
-            occupy_resource(time, resource, prod_t, action_list)
-            resource.is_occupied = True
-            resource_t.is_occupied = False
-            waiting_action_list.pop(i)
-            #print("We popped element, new length: ", len(waiting_action_list), "\n")
-            break
-    """
-
-    #print("Checkin waiting list length: ", len(waiting_action_list))
-
-    invalid_actions = []
-
-    while not waiting_action_list.empty():
-        prod_t, resource_t = waiting_action_list.get()
-        if resource.name in products[prod_t.product_name][prod_t.current_stage ][0][1]:
-            occupy_resource(time, resource, prod_t, action_list)
-
-            #print("We popped element, new length: ", len(waiting_action_list), "\n")
-            resource.is_occupied = True
-            resource_t.is_occupied = False
-            break
-        else:
-            invalid_actions.append((prod_t, resource_t))
-    
-    for remained_order in invalid_actions:
-        waiting_action_list.put(remained_order)
-
-def process_new_orders(time, orders, resources, products, action_list):
-
-    # {product_name_1 : {stage_1 -> [("name", [resorce_names]), ...]} , 
-    #      product_name_2 : {stage_1 -> [("name", [resorce_names]), ...]}  
-    #   ... }
-
-    # Order ==> priority queue (deadline, ord_num, product_name )
-
-    for resource in resources:
-        invalid_orders = []
-
-        while not orders.empty():
-            order = orders.get()
-
-            if resource.name in products[order.product_name][order.current_stage ][0][1]:
-
-                occupy_resource(time, resource, order, action_list)
-                break
-            else:
-                invalid_orders.append(order)
+        self.stages = initialize_stages(self.resources, [ [] for _ in range(self.NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
+        self.orders = form_orders(data["orders"]) # priority queue (deadline, ord_num, product_name )
         
-        for remained_order in invalid_orders:
-            orders.put(remained_order)
+        # SIMULATION
+        """
+        for p,op in products.items():
+            print(p, op)
 
+        for r in resources:
+            print(r.name, r.processing_times)
+        """
 
-def process_new_orders_same_prod(time, orders, resources, products, action_list):
+        self.action_list = PriorityQueue()
+        # [(finish_time, order, resource) ... ]
 
-    # {product_name_1 : {stage_1 -> [("name", [resorce_names]), ...]} , 
-    #      product_name_2 : {stage_1 -> [("name", [resorce_names]), ...]}  
-    #   ... }
+        self.waiting_action_list = PriorityQueue()
 
-    # Order ==> priority queue (deadline, ord_num, product_name )
+        self.time = 0
+        self.success = 0
 
-    for resource in resources:
-        invalid_orders = []
+        def define_product_operations(products,data):
 
-        filled = False
-        second_found = False
-        second_best = ""
-        while not orders.empty():
-            order = orders.get()
+            new_products = {}
+            for product in products:
+                new_products[product] = {}
+                for operation in data["operations_per_product"][product]:
+                    op_stage = data["product_operation_stage"][product][operation]
+                    op_resources = data["operation_machine_compatibility"][product][operation]
+                    try:
+                        new_products[product][op_stage].append((operation,op_resources))
+                    except KeyError:
+                        new_products[product][op_stage] = [(operation,op_resources)]
+            
+            return new_products
 
-            if resource.name in products[order.product_name][order.current_stage ][0][1] :
-                if resource.last_product == order.product_name or resource.last_product == "":
-                    occupy_resource(time, resource, order, action_list)
-                    filled = True
-                    if second_found :
-                        invalid_orders.append(second_best)
+        def define_resource_times(resources,products,data):
+            for resource in resources:
+                for product1, operations in products.items():
+                    resource.add_setup_time("", product1, 0)
+                    for product2 in products:
+                        resource.add_setup_time(product1, product2, data["setup_time"][resource.name][product1][product2].get("mean"))
+
+                    for product1_op_stage, product1_op_list in operations.items():
+                        for product1_op_name,product1_op_resources in product1_op_list:
+                            if resource.name in product1_op_resources:
+                                resource.add_processing_time(product1, product1_op_name, data["processing_time"][product1][product1_op_name][resource.name].get("mean") )
+                    
+        def initialize_stages(resources, stages):
+            for resource in resources:
+                stages[resource.stage-1].append(resource)
+            return stages
+            
+        def occupy_resource(time, resource, order, action_list):
+            finish_time = time + resource.processing_times[(order.product_name, products[order.product_name][order.current_stage ][0][0])] + resource.setup_times[(resource.last_product,order.product_name)] 
+
+            resource.is_occupied = True
+            resource.last_product = order.product_name
+            order.increase_stage()
+            
+            action_list.put((finish_time, order,resource ))
+
+        def check_waiting_list(time, waiting_action_list, action_list, resource):
+
+            """
+            for i in range(len(waiting_action_list)):
+                prod_t, resource_t = waiting_action_list[i]
+                if resource.name in products[prod_t.product_name][prod_t.current_stage][0][1] :
+                    occupy_resource(time, resource, prod_t, action_list)
+                    resource.is_occupied = True
+                    resource_t.is_occupied = False
+                    waiting_action_list.pop(i)
+                    #print("We popped element, new length: ", len(waiting_action_list), "\n")
                     break
-                elif not second_found :
-                    second_best = order
-                    second_found = True
+            """
+
+            #print("Checkin waiting list length: ", len(waiting_action_list))
+
+            invalid_actions = []
+
+            while not waiting_action_list.empty():
+                prod_t, resource_t = waiting_action_list.get()
+                if resource.name in products[prod_t.product_name][prod_t.current_stage ][0][1]:
+                    occupy_resource(time, resource, prod_t, action_list)
+
+                    #print("We popped element, new length: ", len(waiting_action_list), "\n")
+                    resource.is_occupied = True
+                    resource_t.is_occupied = False
+                    break
                 else:
-                    invalid_orders.append(order)
-            else:
-                invalid_orders.append(order)
-        
-        if not filled:
-            occupy_resource(time, resource, second_best, action_list)
-    
-        for remained_order in invalid_orders:
-            orders.put(remained_order)
+                    invalid_actions.append((prod_t, resource_t))
+            
+            for remained_order in invalid_actions:
+                waiting_action_list.put(remained_order)
 
-def form_orders(orders):
-    ordered = PriorityQueue()
-    for order_name, args in orders.items():
-        ordered.put(Order(order_name, args["due_date"], args["product"]))
-    return ordered
+        def process_new_orders(time, orders, resources, products, action_list):
 
-with open('data/useCase_2_stages.json', 'r') as file:
-    data = json.load(file)
+            # {product_name_1 : {stage_1 -> [("name", [resorce_names]), ...]} , 
+            #      product_name_2 : {stage_1 -> [("name", [resorce_names]), ...]}  
+            #   ... }
 
-# Accessing data
+            # Order ==> priority queue (deadline, ord_num, product_name )
 
-NR_STAGES = data["NrStages"]
-operations = data["operations"]
+            for resource in resources:
+                invalid_orders = []
 
-# {product_name_1 : {stage_1 -> ("name", [resorces], ...} , product_name_2 : {stage_1 -> ("name", [resorces], ...} }
-products = [name for name in data["products"]]
-products = define_product_operations(products,data)
+                while not orders.empty():
+                    order = orders.get()
 
-resources = [Resource(name, data["resource_stage"][name]) for name in data["resources"]]
-define_resource_times(resources,products,data)
+                    if resource.name in products[order.product_name][order.current_stage ][0][1]:
 
-stages = initialize_stages(resources, [ [] for _ in range(NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
-orders = form_orders(data["orders"]) # priority queue (deadline, ord_num, product_name )
-   
-# SIMULATION
-"""
-for p,op in products.items():
-    print(p, op)
+                        occupy_resource(time, resource, order, action_list)
+                        break
+                    else:
+                        invalid_orders.append(order)
+                
+                for remained_order in invalid_orders:
+                    orders.put(remained_order)
 
-for r in resources:
-    print(r.name, r.processing_times)
-"""
+        def process_new_orders_same_prod(time, orders, resources, products, action_list):
 
-action_list = PriorityQueue()
-# [(finish_time, order, resource) ... ]
+            # {product_name_1 : {stage_1 -> [("name", [resorce_names]), ...]} , 
+            #      product_name_2 : {stage_1 -> [("name", [resorce_names]), ...]}  
+            #   ... }
 
-waiting_action_list = PriorityQueue()
+            # Order ==> priority queue (deadline, ord_num, product_name )
 
-time = 0
-success = 0
+            for resource in resources:
+                invalid_orders = []
 
+                filled = False
+                second_found = False
+                second_best = ""
+                while not orders.empty():
+                    order = orders.get()
 
-process_new_orders(time, orders, stages[0], products, action_list) ## ACTION
+                    if resource.name in products[order.product_name][order.current_stage ][0][1] :
+                        if resource.last_product == order.product_name or resource.last_product == "":
+                            occupy_resource(time, resource, order, action_list)
+                            filled = True
+                            if second_found :
+                                invalid_orders.append(second_best)
+                            break
+                        elif not second_found :
+                            second_best = order
+                            second_found = True
+                        else:
+                            invalid_orders.append(order)
+                    else:
+                        invalid_orders.append(order)
+                
+                if not filled:
+                    occupy_resource(time, resource, second_best, action_list)
+            
+                for remained_order in invalid_orders:
+                    orders.put(remained_order)
 
-while not action_list.empty():
+        def form_orders(orders):
+            ordered = PriorityQueue()
+            for order_name, args in orders.items():
+                ordered.put(Order(order_name, args["due_date"], args["product"]))
+            return ordered
 
-    time, prod, resource= action_list.get()
-    # print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name, resource.stage)
-
-    if prod.current_stage == NR_STAGES + 1 :
-
-        resource.is_occupied = False
-        print("Order No: " , prod.order_name, " order product: ",prod.product_name , " is produced at time: ", time)
-        print("Duedate was: ", prod.due_date, "\n")
-        
-        if prod.due_date >= time:
-            success += 1
-
-        check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
-        continue
-
-    resource.is_occupied = False
-    check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
-
-
-    assigned = False
-    for resource_t in stages[prod.current_stage -1]:
-        if not resource_t.is_occupied and resource_t.name in products[prod.product_name][prod.current_stage][0][1] :
-            occupy_resource(time, resource_t, prod, action_list)  ## ACTION
-            assigned = True
-            break
-
-    if not assigned:
-        waiting_action_list.put((prod, resource))
     
 
-    if resource.stage == 1 and not orders.empty():
-        process_new_orders_same_prod(time, orders, [resource], products, action_list) ## ACTION
-    
-print("All products are produced at time: ", time)
-print("From total ", len(data["orders"]), " order, ", success, " was before their due dates. Success rate is: ", round((success / len(data["orders"]) * 100), 2) , "%" )
+    def step(self, action):
+        self.process_new_orders(time, orders, stages[0], products, action_list) ## ACTION
+
+        while not action_list.empty():
+
+            time, prod, resource= action_list.get()
+            # print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name, resource.stage)
+
+            if prod.current_stage == NR_STAGES + 1 :
+
+                resource.is_occupied = False
+                print("Order No: " , prod.order_name, " order product: ",prod.product_name , " is produced at time: ", time)
+                print("Duedate was: ", prod.due_date, "\n")
+                
+                if prod.due_date >= time:
+                    success += 1
+
+                check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
+                continue
+
+            resource.is_occupied = False
+            check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
+
+
+            assigned = False
+            for resource_t in stages[prod.current_stage -1]:
+                if not resource_t.is_occupied and resource_t.name in products[prod.product_name][prod.current_stage][0][1] :
+                    occupy_resource(time, resource_t, prod, action_list)  ## ACTION
+                    assigned = True
+                    break
+
+            if not assigned:
+                waiting_action_list.put((prod, resource))
+            
+
+            if resource.stage == 1 and not orders.empty():
+                process_new_orders_same_prod(time, orders, [resource], products, action_list) ## ACTION
+            
+        print("All products are produced at time: ", time)
+        print("From total ", len(data["orders"]), " order, ", success, " was before their due dates. Success rate is: ", round((success / len(data["orders"]) * 100), 2) , "%" )
