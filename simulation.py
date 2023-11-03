@@ -103,8 +103,8 @@ class Env:
         define_resource_times(self.resources,self.products,data)
 
         self.stages = initialize_stages(self.resources, [ [] for _ in range(self.NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
-        self.orders = form_orders(data["orders"]) # priority queue (deadline, ord_num, product_name )
-        
+        self.orders = [Order(order_name, args["due_date"], args["product"]) for order_name, args in data["orders"].items()]
+
         # SIMULATION
         """
         for p,op in products.items():
@@ -121,6 +121,8 @@ class Env:
 
         self.time = 0
         self.success = 0
+
+        self.possible_actions = [(order, self.products[order.product_name][1][0][1]) for order in self.orders]
 
         def define_product_operations(products,data):
 
@@ -154,14 +156,14 @@ class Env:
                 stages[resource.stage-1].append(resource)
             return stages
             
-        def occupy_resource(time, resource, order, action_list):
-            finish_time = time + resource.processing_times[(order.product_name, products[order.product_name][order.current_stage ][0][0])] + resource.setup_times[(resource.last_product,order.product_name)] 
+        def occupy_resource(resource, order):
+            finish_time = self.time + resource.processing_times[(order.product_name, self.products[order.product_name][order.current_stage ][0][0])] + resource.setup_times[(resource.last_product,order.product_name)] 
 
             resource.is_occupied = True
             resource.last_product = order.product_name
             order.increase_stage()
             
-            action_list.put((finish_time, order,resource ))
+            self.action_list.put((finish_time, order,resource ))
 
         def check_waiting_list(time, waiting_action_list, action_list, resource):
 
@@ -265,44 +267,43 @@ class Env:
             return ordered
 
     
-
     def step(self, action):
-        self.process_new_orders(time, orders, stages[0], products, action_list) ## ACTION
+        prod, resource = action
 
-        while not action_list.empty():
+        if resource in self.stages[0]:
+            self.occupy_resource(resource, prod)
 
-            time, prod, resource= action_list.get()
-            # print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name, resource.stage)
+        # print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name, resource.stage)
 
-            if prod.current_stage == NR_STAGES + 1 :
-
-                resource.is_occupied = False
-                print("Order No: " , prod.order_name, " order product: ",prod.product_name , " is produced at time: ", time)
-                print("Duedate was: ", prod.due_date, "\n")
-                
-                if prod.due_date >= time:
-                    success += 1
-
-                check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
-                continue
+        if prod.current_stage == self.NR_STAGES + 1 :
 
             resource.is_occupied = False
+            print("Order No: " , prod.order_name, " order product: ",prod.product_name , " is produced at time: ", time)
+            print("Duedate was: ", prod.due_date, "\n")
+            
+            if prod.due_date >= self.time:
+                success += 1
+
             check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
+            continue
+
+        resource.is_occupied = False
+        check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
 
 
-            assigned = False
-            for resource_t in stages[prod.current_stage -1]:
-                if not resource_t.is_occupied and resource_t.name in products[prod.product_name][prod.current_stage][0][1] :
-                    occupy_resource(time, resource_t, prod, action_list)  ## ACTION
-                    assigned = True
-                    break
+        assigned = False
+        for resource_t in stages[prod.current_stage -1]:
+            if not resource_t.is_occupied and resource_t.name in products[prod.product_name][prod.current_stage][0][1] :
+                occupy_resource(time, resource_t, prod, action_list)  ## ACTION
+                assigned = True
+                break
 
-            if not assigned:
-                waiting_action_list.put((prod, resource))
-            
+        if not assigned:
+            waiting_action_list.put((prod, resource))
+        
 
-            if resource.stage == 1 and not orders.empty():
-                process_new_orders_same_prod(time, orders, [resource], products, action_list) ## ACTION
-            
+        if resource.stage == 1 and not orders.empty():
+            process_new_orders_same_prod(time, orders, [resource], products, action_list) ## ACTION
+        
         print("All products are produced at time: ", time)
         print("From total ", len(data["orders"]), " order, ", success, " was before their due dates. Success rate is: ", round((success / len(data["orders"]) * 100), 2) , "%" )
