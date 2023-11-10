@@ -181,7 +181,7 @@ class Env:
             colors.append('#%02X%02X%02X' % (r(),r(),r()))
 
         # Create Gantt chart
-        fig = ff.create_gantt(self.df, colors=colors,index_col='Resource',bar_width = 0.4, show_colorbar=True, group_tasks=True)
+        fig = ff.create_gantt(self.df, index_col='Resource',bar_width = 0.4, show_colorbar=True, group_tasks=True)
         fig.update_layout(xaxis_type='linear', autosize=False, width=800, height=400)
 
         # Show plot
@@ -322,7 +322,7 @@ class Env:
         order.increase_stage()
         order.resource = resource
 
-        self.df.append(dict(Task=order_name, Start=self.time, Finish=finish_time, Resource=resource_name))
+        self.df.append(dict(Task=resource_name, Start=self.time, Finish=finish_time, Resource=order.product_name))
 
         #self.action_list.put((finish_time, order ))
 
