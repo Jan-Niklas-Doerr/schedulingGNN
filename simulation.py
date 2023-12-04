@@ -111,18 +111,19 @@ class Env:
 
         self.stages = self.initialize_stages( [ [] for _ in range(self.NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
         self.orders = {order_name:Order(order_name, args["due_date"], args["product"]) for order_name, args in self.data["orders"].items()}
+        self.orders_not_initialise = {order_name:Order(order_name, args["due_date"], args["product"]) for order_name, args in self.data["orders"].items()}
 
         self.action_list = PriorityQueue()
         # [(finish_time, order, resource) ... ]
 
-        self.waiting_action_list = PriorityQueue()
+        self.waiting_action_list = []
 
         self.time = 0
         self.success = 0
         self.last_job = 0
         self.alive = True
 
-        self.possible_actions = {order.order_name: self.products[order.product_name][order.current_stage][0][1] for order in self.orders.values()}
+        self.possible_actions = {order.order_name: self.products[order.product_name][order.current_stage][0][1].copy() for order in self.orders_not_initialise.values()}
 
     def define_product_operations(self):
 
@@ -155,7 +156,6 @@ class Env:
         for resource in self.resources.values():
             stages[resource.stage-1].append(resource)
         self.stages = stages
-
 
     def terminate(self):
         print("All products are produced at time: ", self.time)
@@ -309,37 +309,102 @@ class Env:
 
         if order_name not in self.possible_actions.keys() or resource_name not in self.possible_actions[order_name]:
             return "INVALID ACTION, Action is not possible"
-
-        if order.resource:
-            self.time = max(resource.free_at, order.resource.free_at, self.time)
-        else:
-            self.time = max(resource.free_at, self.time)
         
         finish_time = self.time + resource.processing_times[(order.product_name, self.products[order.product_name][order.current_stage ][0][0])] + resource.setup_times[(resource.last_product,order.product_name)] 
         resource.is_occupied = True
         resource.last_product = order.product_name
         resource.free_at= finish_time
+
+        if order.current_stage == 1:
+            self.orders_not_initialise.pop(order_name)
+
+        for i, temp_ord in enumerate(self.waiting_action_list):
+            if temp_ord.order_name == order_name:
+                self.waiting_action_list.pop(i)
+                break
+
         order.increase_stage()
-        order.resource = resource
+        order.resource = resource_name
 
         self.df.append(dict(Task=resource_name, Start=self.time, Finish=finish_time, Resource=order.product_name))
 
-        #self.action_list.put((finish_time, order ))
+        self.action_list.put((finish_time, order ))
 
-        if order.current_stage == self.NR_STAGES + 1 :
-            self.possible_actions.pop(order_name)
-            
-            self.last_job = max(finish_time,self.last_job)
-            print("Order No: " , order.order_name, " order product: ",order.product_name , " is produced at time: ", finish_time)
-            print("Duedate was: ", order.due_date, "\n")
-            
-            if order.due_date >= finish_time:
-                self.success += 1
-            if not self.possible_actions:
-                self.terminate()
+        self.possible_actions.pop(order_name)
+        deleted = []
+        for o,rl in self.possible_actions.items():
+            if resource_name in rl:
+                rl.pop(rl.index(resource_name))
 
-        else:
-            self.possible_actions[order_name] = self.products[order.product_name][order.current_stage][0][1]
+            if not rl:
+                deleted.append(o)
+
+        for o in deleted:
+            self.possible_actions.pop(o)
+
+        while not self.possible_actions:
+            self.time, ord_t = self.action_list.get()
+
+            finished_product = False
+
+            if ord_t.current_stage == self.NR_STAGES + 1 :
+
+                finished_product = True
+                
+                print("Order No: " , order.order_name, " order product: ",order.product_name , " is produced at time: ", finish_time)
+                print("Duedate was: ", order.due_date, "\n")
+                
+                if order.due_date >= finish_time:
+                    self.success += 1
+
+                if not self.possible_actions and self.action_list.empty() and not self.waiting_action_list:
+                    self.terminate()
+                    break
+                
+                
+            else:
+                resources = self.products[ord_t.product_name][ord_t.current_stage][0][1]
+                filtered_resorces = []
+                for res in resources:
+                    if not self.resources[res].is_occupied:
+                        filtered_resorces.append(res)
+
+                if filtered_resorces:
+                    self.possible_actions[ord_t.order_name] = filtered_resorces
+
+            free_resource_name = ord_t.resource
+            ord_t.resource = None
+            free_resource = self.resources[free_resource_name]
+            free_resource.is_occupied = False
+
+            if ord_t.current_stage == 2:
+                #print(self.products)
+                for ord_tt in self.orders_not_initialise.values():
+                    resources = self.products[ord_tt.product_name][ord_tt.current_stage][0][1]
+                    #print(ord_tt.order_name,resources,ord_tt.product_name,ord_tt.current_stage)
+                    if free_resource_name in resources:
+                        
+                        try:
+                            self.possible_actions[ord_tt.order_name].append(free_resource_name)
+                        except KeyError:
+                            self.possible_actions[ord_tt.order_name] = [free_resource_name]
+
+
+            else:
+                for ord_tt in self.waiting_action_list:
+                    resources = self.products[ord_tt.product_name][ord_tt.current_stage][0][1]
+                    if free_resource_name in resources:
+                        try:
+                            self.possible_actions[ord_tt.order_name].append(free_resource_name)
+                        except KeyError:
+                            self.possible_actions[ord_tt.order_name] = [free_resource_name]
+
+            if not finished_product:
+                self.waiting_action_list.append(ord_t)
+
+        
+            
+                
         """
         while not self.action_list.empty():
             deadline, prod = self.action_list.get()
@@ -353,6 +418,11 @@ simulation = Env("data/useCase_2_stages.json")
 
 while simulation.alive:
     
+    #print(list(simulation.possible_actions.items()))
+
     action_order = random.choice(list(simulation.possible_actions.keys()))
     action_resource = random.choice(simulation.possible_actions[action_order])
+    
+    #print("Action is taken: " , (action_order,action_resource))
+    #print()
     simulation.step((action_order,action_resource))
