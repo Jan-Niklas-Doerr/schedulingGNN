@@ -1,6 +1,8 @@
 import numpy as np
 import json
 from queue import PriorityQueue
+import plotly.figure_factory as ff
+import random
 
 
 class Resource:
@@ -117,7 +119,7 @@ def initialize_stages(resources, stages):
         stages[resource.stage-1].append(resource)
     return stages
     
-def occupy_resource(time, resource, order, action_list):
+def occupy_resource(time, resource, order, action_list,products, df):
     finish_time = time + resource.processing_times[(order.product_name, products[order.product_name][order.current_stage ][0][0])] + resource.setup_times[(resource.last_product,order.product_name)] 
 
     resource.is_occupied = True
@@ -126,7 +128,9 @@ def occupy_resource(time, resource, order, action_list):
     
     action_list.put((finish_time, order,resource ))
 
-def check_waiting_list(time, waiting_action_list, action_list, resource):
+    df.append(dict(Task=resource.name, Start=time, Finish=finish_time, Resource=order.product_name))
+
+def check_waiting_list(time, waiting_action_list, action_list,products, resource,df):
 
     """
     for i in range(len(waiting_action_list)):
@@ -147,7 +151,7 @@ def check_waiting_list(time, waiting_action_list, action_list, resource):
     while not waiting_action_list.empty():
         prod_t, resource_t = waiting_action_list.get()
         if resource.name in products[prod_t.product_name][prod_t.current_stage ][0][1]:
-            occupy_resource(time, resource, prod_t, action_list)
+            occupy_resource(time, resource, prod_t, action_list,products,df)
 
             #print("We popped element, new length: ", len(waiting_action_list), "\n")
             resource.is_occupied = True
@@ -159,7 +163,7 @@ def check_waiting_list(time, waiting_action_list, action_list, resource):
     for remained_order in invalid_actions:
         waiting_action_list.put(remained_order)
 
-def process_new_orders(time, orders, resources, products, action_list):
+def process_new_orders(time, orders, resources, products, action_list,df):
 
     # {product_name_1 : {stage_1 -> [("name", [resorce_names]), ...]} , 
     #      product_name_2 : {stage_1 -> [("name", [resorce_names]), ...]}  
@@ -175,7 +179,7 @@ def process_new_orders(time, orders, resources, products, action_list):
 
             if resource.name in products[order.product_name][order.current_stage ][0][1]:
 
-                occupy_resource(time, resource, order, action_list)
+                occupy_resource(time, resource, order, action_list,products,df)
                 break
             else:
                 invalid_orders.append(order)
@@ -183,8 +187,7 @@ def process_new_orders(time, orders, resources, products, action_list):
         for remained_order in invalid_orders:
             orders.put(remained_order)
 
-
-def process_new_orders_same_prod(time, orders, resources, products, action_list):
+def process_new_orders_same_prod(time, orders, resources, products, action_list,df):
 
     # {product_name_1 : {stage_1 -> [("name", [resorce_names]), ...]} , 
     #      product_name_2 : {stage_1 -> [("name", [resorce_names]), ...]}  
@@ -203,7 +206,7 @@ def process_new_orders_same_prod(time, orders, resources, products, action_list)
 
             if resource.name in products[order.product_name][order.current_stage ][0][1] :
                 if resource.last_product == order.product_name or resource.last_product == "":
-                    occupy_resource(time, resource, order, action_list)
+                    occupy_resource(time, resource, order, action_list,products,df)
                     filled = True
                     if second_found :
                         invalid_orders.append(second_best)
@@ -217,7 +220,7 @@ def process_new_orders_same_prod(time, orders, resources, products, action_list)
                 invalid_orders.append(order)
         
         if not filled:
-            occupy_resource(time, resource, second_best, action_list)
+            occupy_resource(time, resource, second_best, action_list,products,df)
     
         for remained_order in invalid_orders:
             orders.put(remained_order)
@@ -228,78 +231,95 @@ def form_orders(orders):
         ordered.put(Order(order_name, args["due_date"], args["product"]))
     return ordered
 
-with open('data/useCase_2_stages.json', 'r') as file:
-    data = json.load(file)
+def run(data, visualise, cleverInitialise, verbose):
+    with open(data, 'r') as file:
+        data = json.load(file)
 
-# Accessing data
+    
+    NR_STAGES = data["NrStages"]
+    operations = data["operations"]
+    df = []
 
-NR_STAGES = data["NrStages"]
-operations = data["operations"]
+    # {product_name_1 : {stage_1 -> ("name", [resorces], ...} , product_name_2 : {stage_1 -> ("name", [resorces], ...} }
+    products = [name for name in data["products"]]
+    products = define_product_operations(products,data)
 
-# {product_name_1 : {stage_1 -> ("name", [resorces], ...} , product_name_2 : {stage_1 -> ("name", [resorces], ...} }
-products = [name for name in data["products"]]
-products = define_product_operations(products,data)
+    resources = [Resource(name, data["resource_stage"][name]) for name in data["resources"]]
+    define_resource_times(resources,products,data)
 
-resources = [Resource(name, data["resource_stage"][name]) for name in data["resources"]]
-define_resource_times(resources,products,data)
+    stages = initialize_stages(resources, [ [] for _ in range(NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
+    orders = form_orders(data["orders"]) # priority queue (deadline, ord_num, product_name )
+    
+    # SIMULATION
+    """
+    for p,op in products.items():
+        print(p, op)
 
-stages = initialize_stages(resources, [ [] for _ in range(NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
-orders = form_orders(data["orders"]) # priority queue (deadline, ord_num, product_name )
-   
-# SIMULATION
-"""
-for p,op in products.items():
-    print(p, op)
+    for r in resources:
+        print(r.name, r.processing_times)
+    """
 
-for r in resources:
-    print(r.name, r.processing_times)
-"""
+    action_list = PriorityQueue()
+    # [(finish_time, order, resource) ... ]
 
-action_list = PriorityQueue()
-# [(finish_time, order, resource) ... ]
+    waiting_action_list = PriorityQueue()
 
-waiting_action_list = PriorityQueue()
-
-time = 0
-success = 0
+    time = 0
+    success = 0
 
 
-process_new_orders(time, orders, stages[0], products, action_list) ## ACTION
+    process_new_orders(time, orders, stages[0], products, action_list,df) ## ACTION
 
-while not action_list.empty():
+    while not action_list.empty():
 
-    time, prod, resource= action_list.get()
-    # print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name, resource.stage)
+        time, prod, resource= action_list.get()
+        # print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name, resource.stage)
 
-    if prod.current_stage == NR_STAGES + 1 :
+        if prod.current_stage == NR_STAGES + 1 :
+
+            resource.is_occupied = False
+            if verbose:
+                print("Order No: " , prod.order_name, " order product: ",prod.product_name , " is produced at time: ", time)
+                print("Duedate was: ", prod.due_date, "\n")
+            
+            if prod.due_date >= time:
+                success += 1
+
+            check_waiting_list(time, waiting_action_list, action_list,products, resource, df) ## ACTION
+            continue
 
         resource.is_occupied = False
-        print("Order No: " , prod.order_name, " order product: ",prod.product_name , " is produced at time: ", time)
-        print("Duedate was: ", prod.due_date, "\n")
+        check_waiting_list(time, waiting_action_list, action_list,products, resource, df) ## ACTION
+
+
+        assigned = False
+        for resource_t in stages[prod.current_stage -1]:
+            if not resource_t.is_occupied and resource_t.name in products[prod.product_name][prod.current_stage][0][1] :
+                occupy_resource(time, resource_t, prod, action_list,products,df)  ## ACTION
+                assigned = True
+                break
+
+        if not assigned:
+            waiting_action_list.put((prod, resource))
         
-        if prod.due_date >= time:
-            success += 1
 
-        check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
-        continue
+        if resource.stage == 1 and not orders.empty():
+            if cleverInitialise:
+                process_new_orders_same_prod(time, orders, [resource], products, action_list, df) ## ACTION
+            else:
+                process_new_orders(time, orders, [resource], products, action_list, df) ## ACTION
+        
+    print("All products are produced at time: ", time)
+    print("From total ", len(data["orders"]), " order, ", success, " was before their due dates. Success rate is: ", round((success / len(data["orders"]) * 100), 2) , "%" )
 
-    resource.is_occupied = False
-    check_waiting_list(time, waiting_action_list, action_list, resource) ## ACTION
+    if visualise:
+            for task in df:
+                assert 'Task' in task and 'Start' in task and 'Finish' in task and 'Resource' in task, "Data format error"
+                assert task['Finish'] > task['Start'], "Finish time must be after Start time"
 
+            # Create Gantt chart
+            fig = ff.create_gantt(df, index_col='Resource',bar_width = 0.4, show_colorbar=True, group_tasks=True)
+            fig.update_layout(xaxis_type='linear', autosize=False, width=800, height=400)
 
-    assigned = False
-    for resource_t in stages[prod.current_stage -1]:
-        if not resource_t.is_occupied and resource_t.name in products[prod.product_name][prod.current_stage][0][1] :
-            occupy_resource(time, resource_t, prod, action_list)  ## ACTION
-            assigned = True
-            break
-
-    if not assigned:
-        waiting_action_list.put((prod, resource))
-    
-
-    if resource.stage == 1 and not orders.empty():
-        process_new_orders_same_prod(time, orders, [resource], products, action_list) ## ACTION
-    
-print("All products are produced at time: ", time)
-print("From total ", len(data["orders"]), " order, ", success, " was before their due dates. Success rate is: ", round((success / len(data["orders"]) * 100), 2) , "%" )
+            # Show plot
+            fig.show()
