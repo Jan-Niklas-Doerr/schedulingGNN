@@ -1,4 +1,4 @@
-from simulations.simulation import *
+from simulations.sim_constrained import *
 
 simulation = Env("data/useCase_2_stages.json",visualise=False)
 
