@@ -90,13 +90,13 @@ class Order:
 
 class Env:
 
-    def __init__(self, data ):
+    def __init__(self, data,visualise):
         with open(data, 'r') as file:
             self.data = json.load(file)
 
         # Accessing data
 
-
+        self.visualise = visualise
         self.df = []
 
         self.NR_STAGES = self.data["NrStages"]
@@ -170,22 +170,23 @@ class Env:
             if task['Finish'] <= task['Start']:
                 print(task['Start'], task['Finish'])
 """
-        for task in self.df:
-            assert 'Task' in task and 'Start' in task and 'Finish' in task and 'Resource' in task, "Data format error"
-            assert task['Finish'] > task['Start'], "Finish time must be after Start time"
+        if self.visualise:
+            for task in self.df:
+                assert 'Task' in task and 'Start' in task and 'Finish' in task and 'Resource' in task, "Data format error"
+                assert task['Finish'] > task['Start'], "Finish time must be after Start time"
 
 
-        r = lambda: random.randint(0,255)             
-        colors = ['#%02X%02X%02X' % (r(),r(),r())]              
-        for i in range(1, len(self.orders)+1):                                   
-            colors.append('#%02X%02X%02X' % (r(),r(),r()))
+            r = lambda: random.randint(0,255)             
+            colors = ['#%02X%02X%02X' % (r(),r(),r())]              
+            for i in range(1, len(self.orders)+1):                                   
+                colors.append('#%02X%02X%02X' % (r(),r(),r()))
 
-        # Create Gantt chart
-        fig = ff.create_gantt(self.df, index_col='Resource',bar_width = 0.4, show_colorbar=True, group_tasks=True)
-        fig.update_layout(xaxis_type='linear', autosize=False, width=800, height=400)
+            # Create Gantt chart
+            fig = ff.create_gantt(self.df, index_col='Resource',bar_width = 0.4, show_colorbar=True, group_tasks=True)
+            fig.update_layout(xaxis_type='linear', autosize=False, width=800, height=400)
 
-        # Show plot
-        fig.show()
+            # Show plot
+            fig.show()
 
     def reset(self):
         self.alive = True
@@ -413,16 +414,3 @@ class Env:
                 self.action_list.put((deadline,prod))
                 break
         """
-
-simulation = Env("data/useCase_2_stages.json")
-
-while simulation.alive:
-    
-    #print(list(simulation.possible_actions.items()))
-
-    action_order = random.choice(list(simulation.possible_actions.keys()))
-    action_resource = random.choice(simulation.possible_actions[action_order])
-    
-    #print("Action is taken: " , (action_order,action_resource))
-    #print()
-    simulation.step((action_order,action_resource))
