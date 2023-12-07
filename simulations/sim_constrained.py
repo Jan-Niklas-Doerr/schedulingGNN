@@ -94,13 +94,23 @@ class Env:
 
         self.DATA_PATH = "data/"
 
-        self.initialise_data()
-
-        # Accessing data
-
         self.visualise = visualise
         self.verbose = verbose
+
+        self.initialise_env()
+
+    def initialise_data(self):
+
+        files = os.listdir(self.DATA_PATH)
+        selected_file = random.choice(files)
+
+        with open(os.path.join(self.DATA_PATH, selected_file), 'r') as file:
+            self.data = json.load(file)
+            
+    def initialise_env(self):
+        
         self.df = []
+        self.initialise_data()
 
         self.NR_STAGES = self.data["NrStages"]
 
@@ -128,16 +138,6 @@ class Env:
         self.alive = True
 
         self.possible_actions = {order.order_name: self.products[order.product_name][order.current_stage][0][1].copy() for order in self.orders_not_initialise.values()}
-
-
-    def initialise_data(self):
-
-        files = os.listdir(self.DATA_PATH)
-        selected_file = random.choice(files)
-
-        with open(os.path.join(self.DATA_PATH, selected_file), 'r') as file:
-            self.data = json.load(file)
-            
 
     def define_product_operations(self):
 
@@ -177,14 +177,6 @@ class Env:
         print("From total ", len(self.data["orders"]), " order, ", self.success, " was before their due dates. Success rate is: ", round((self.success / len(self.data["orders"]) * 100), 2) , "%" )
         self.alive = False
 
-        """
-        for task in self.df:
-            task['Start'] = f'Time {task["Start"]}'
-            task['Finish'] = f'Time {task["Finish"]}'
-
-            if task['Finish'] <= task['Start']:
-                print(task['Start'], task['Finish'])
-"""
         if self.visualise:
             for task in self.df:
                 assert 'Task' in task and 'Start' in task and 'Finish' in task and 'Resource' in task, "Data format error"
@@ -205,7 +197,7 @@ class Env:
 
     def reset(self):
         self.alive = True
-        print("reseted")
+        self.initialise_env()
 
     def form_orders(orders):
         ordered = PriorityQueue()

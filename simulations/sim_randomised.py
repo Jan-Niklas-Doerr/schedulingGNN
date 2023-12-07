@@ -93,14 +93,23 @@ class Env:
     def __init__(self, visualise ,verbose):
         self.DATA_PATH = "data/"
 
-        self.initialise_data()
 
         # Accessing data
 
         self.visualise = visualise
         self.verbose = verbose
-        self.df = []
+        
+    def initialise_data(self):
 
+        files = os.listdir(self.DATA_PATH)
+        selected_file = random.choice(files)
+
+        with open(os.path.join(self.DATA_PATH, selected_file), 'r') as file:
+            self.data = json.load(file)
+
+    def initiasise_env(self):
+        self.df = []
+        self.initialise_data()
         self.NR_STAGES = self.data["NrStages"]
         self.operations = self.data["operations"]
 
@@ -126,15 +135,7 @@ class Env:
 
         self.possible_actions = {order.order_name: self.products[order.product_name][order.current_stage][0][1] for order in self.orders.values()}
 
-
-    def initialise_data(self):
-
-        files = os.listdir(self.DATA_PATH)
-        selected_file = random.choice(files)
-
-        with open(os.path.join(self.DATA_PATH, selected_file), 'r') as file:
-            self.data = json.load(file)
-
+    
     def define_product_operations(self):
 
         new_products = {}
@@ -201,7 +202,7 @@ class Env:
 
     def reset(self):
         self.alive = True
-        print("reseted")
+        self.initialise_env()
    
     def form_orders(orders):
         ordered = PriorityQueue()
