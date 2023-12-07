@@ -2,7 +2,7 @@ import numpy as np
 import json
 from queue import PriorityQueue
 import plotly.figure_factory as ff
-import random
+import random, os
 
 
 class Resource:
@@ -231,10 +231,17 @@ def form_orders(orders):
         ordered.put(Order(order_name, args["due_date"], args["product"]))
     return ordered
 
-def run(data, visualise, cleverInitialise, verbose):
-    with open(data, 'r') as file:
-        data = json.load(file)
+def run( visualise, cleverInitialise, verbose):
+    
+    DATA_PATH = "data/"
 
+    files = os.listdir(DATA_PATH)
+    selected_file = random.choice(files)
+
+    with open(os.path.join(DATA_PATH, selected_file), 'r') as file:
+        data = json.load(file)
+        
+   
     
     NR_STAGES = data["NrStages"]
     operations = data["operations"]

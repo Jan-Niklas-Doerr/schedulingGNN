@@ -1,7 +1,7 @@
 import numpy as np
 import json
 from queue import PriorityQueue
-import random
+import random, os
 import plotly.figure_factory as ff
 
 
@@ -90,9 +90,11 @@ class Order:
 
 class Env:
 
-    def __init__(self, data,visualise, verbose):
-        with open(data, 'r') as file:
-            self.data = json.load(file)
+    def __init__(self, visualise, verbose):
+
+        self.DATA_PATH = "data/"
+
+        self.initialise_data()
 
         # Accessing data
 
@@ -101,6 +103,7 @@ class Env:
         self.df = []
 
         self.NR_STAGES = self.data["NrStages"]
+
         self.operations = self.data["operations"]
 
         # {product_name_1 : {stage_1 -> ("name", [resorces], ...} , product_name_2 : {stage_1 -> ("name", [resorces], ...} }
@@ -125,6 +128,16 @@ class Env:
         self.alive = True
 
         self.possible_actions = {order.order_name: self.products[order.product_name][order.current_stage][0][1].copy() for order in self.orders_not_initialise.values()}
+
+
+    def initialise_data(self):
+
+        files = os.listdir(self.DATA_PATH)
+        selected_file = random.choice(files)
+
+        with open(os.path.join(self.DATA_PATH, selected_file), 'r') as file:
+            self.data = json.load(file)
+            
 
     def define_product_operations(self):
 
