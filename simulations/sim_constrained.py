@@ -99,13 +99,6 @@ class Env:
 
         self.initialise_env()
 
-    def initialise_data(self):
-
-        files = os.listdir(self.DATA_PATH)
-        selected_file = random.choice(files)
-
-        with open(os.path.join(self.DATA_PATH, selected_file), 'r') as file:
-            self.data = json.load(file)
             
     def initialise_env(self):
         
@@ -139,6 +132,14 @@ class Env:
 
         self.possible_actions = {order.order_name: self.products[order.product_name][order.current_stage][0][1].copy() for order in self.orders_not_initialise.values()}
 
+    def initialise_data(self):
+
+        files = os.listdir(self.DATA_PATH)
+        selected_file = random.choice(files)
+
+        with open(os.path.join(self.DATA_PATH, selected_file), 'r') as file:
+            self.data = json.load(file)
+    
     def define_product_operations(self):
 
         new_products = {}
