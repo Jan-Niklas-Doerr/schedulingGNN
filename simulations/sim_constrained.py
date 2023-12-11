@@ -175,7 +175,8 @@ class Env:
                 resource.add_setup_time("", product1, 0)
                 for product2 in self.products:
                     resource.add_setup_time(product1, product2, self.data["setup_time"][resource.name][product1][product2].get("mean"))
-                    self.setup_times.append(self.data["setup_time"][resource.name][product1][product2].get("mean"))
+                    if(self.data["setup_time"][resource.name][product1][product2].get("type") != "Nonexisting"):
+                        self.setup_times.append(self.data["setup_time"][resource.name][product1][product2].get("mean"))
 
                 for product1_op_stage, product1_op_list in operations.items():
                     for product1_op_name,product1_op_resources in product1_op_list:
@@ -336,8 +337,10 @@ class Env:
 
     def get_state(self):
         state = []
-        state += self.setup_times + self.processing_times 
+        state += self.setup_times + self.processing_times
+        #print(state, "only setup and processing times") 
         state.append(len(self.orders_not_initialise)) # number of not processed orders
+        #print(state, "orders not initialised") 
         state.append(len(self.waiting_action_list)) # number of buffered orders
         state.append(self.time) # current time
 
