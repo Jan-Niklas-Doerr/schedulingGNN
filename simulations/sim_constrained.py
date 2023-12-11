@@ -114,9 +114,9 @@ class Env:
         self.define_product_operations()
 
         self.resources = {name: Resource(name, self.data["resource_stage"][name]) for name in self.data["resources"]}
-        self.define_resource_times()
         self.setup_times = []
         self.processing_times = []
+        self.define_resource_times()
 
         self.stages = self.initialize_stages( [ [] for _ in range(self.NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
         self.orders = {order_name:Order(order_name, args["due_date"], args["product"]) for order_name, args in self.data["orders"].items()}
@@ -140,6 +140,9 @@ class Env:
         self.success = 0
         self.last_job = 0
         self.alive = True
+
+        self.n_actions = len(self.orders) * len(self.resources)
+        self.n_states = len(self.get_state())
 
         self.possible_actions = {order.order_name: self.products[order.product_name][order.current_stage][0][1].copy() for order in self.orders_not_initialise.values()}
 
@@ -212,6 +215,8 @@ class Env:
     def reset(self):
         self.alive = True
         self.initialise_env()
+
+        return self.get_state(), self.get_action_mask()
 
     def form_orders(orders):
         ordered = PriorityQueue()
@@ -325,15 +330,15 @@ class Env:
         state = self.get_state()
         reward =  -1 * self.remaining_orders
         done = not self.alive
-        action_mask = self.set_action_mask()
+        action_mask = self.get_action_mask()
 
         return state, reward, done, action_mask
 
-    def set_state(self):
+    def get_state(self):
         state = []
         state += self.setup_times + self.processing_times 
         state.append(len(self.orders_not_initialise)) # number of not processed orders
-        state.append(self.waiting_action_list.qsize()) # number of buffered orders
+        state.append(len(self.waiting_action_list)) # number of buffered orders
         state.append(self.time) # current time
 
         order_remaning_times = []
@@ -346,19 +351,20 @@ class Env:
         state += order_remaning_times # remaining times for orders
 
         resource_status = []
-        for resource in self.resources:
+        for resource in self.resources.values():
             if resource.is_occupied:
                 resource_status.append(1)
             else:
                 resource_status.append(0)
 
         state += resource_status
-        return state
+        return np.asarray(state,dtype=np.float32)
         
-    def set_action_mask(self):
+    def get_action_mask(self):
         action_mask = np.zeros(len(self.orders) * len(self.resources))
 
         for order, resources in self.possible_actions.items():
             for res in resources:
                 action_mask[self.order_id[order] * len(self.resources) + self.resource_id[res]] = 1
         return action_mask
+    
