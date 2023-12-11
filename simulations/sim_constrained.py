@@ -91,12 +91,14 @@ class Order:
 
 class Env:
 
-    def __init__(self, visualise, verbose):
+    def __init__(self, visualise, verbose, goal="max_order",model=False):
 
         self.DATA_PATH = "data/"
 
         self.visualise = visualise
         self.verbose = verbose
+        self.goal = goal
+        self.model = model
 
         self.initialise_env()
            
@@ -240,7 +242,7 @@ class Env:
 
     def step(self, action):
 
-        order_name, resource_name = self.action_num_to_pair(action)
+        order_name, resource_name = self.action_num_to_pair(action) if self.model else action
         order = self.orders[order_name]
         resource = self.resources[resource_name]
 
@@ -346,8 +348,9 @@ class Env:
         reward =  -1 * self.remaining_orders
         done = not self.alive
         action_mask = self.get_action_mask()
+        result = self.time if self.goal == "min_time" else self.success_rate
 
-        return state, reward, done, action_mask, self.success_rate
+        return state, reward, done, action_mask, result
 
     def get_state(self):
         state = []
