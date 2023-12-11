@@ -139,6 +139,7 @@ class Env:
         self.time = 0
         self.success = 0
         self.last_job = 0
+        self.success_rate = 0
         self.alive = True
 
         self.n_actions = len(self.orders) * len(self.resources)
@@ -191,8 +192,10 @@ class Env:
 
     def terminate(self):
        
-        print("All products are produced at time: ", self.time)
-        print("From total ", len(self.data["orders"]), " order, ", self.success, " was before their due dates. Success rate is: ", round((self.success / len(self.data["orders"]) * 100), 2) , "%" )
+        #print("All products are produced at time: ", self.time)
+        #print("From total ", len(self.data["orders"]), " order, ", self.success, " was before their due dates. Success rate is: ", round((self.success / len(self.data["orders"]) * 100), 2) , "%" )
+        #print("Success rate is: ", round((self.success / len(self.data["orders"]) * 100), 2) , "%")
+        self.success_rate = round((self.success / len(self.data["orders"]) * 100), 2) 
         self.alive = False
 
         if self.visualise:
@@ -344,7 +347,7 @@ class Env:
         done = not self.alive
         action_mask = self.get_action_mask()
 
-        return state, reward, done, action_mask
+        return state, reward, done, action_mask, self.success_rate
 
     def get_state(self):
         state = []
