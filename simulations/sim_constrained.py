@@ -225,8 +225,19 @@ class Env:
             ordered.put(Order(order_name, args["due_date"], args["product"]))
         return ordered
 
+    def action_num_to_pair(self,value):
+
+        o_id = value //  len(self.resources)
+        res_id = value % len(self.resources)
+
+        order_name = list(self.order_id.keys())[list(self.order_id.values()).index(o_id)]
+        resource_name = list(self.resource_id.keys())[list(self.resource_id.values()).index(res_id)]
+
+        return order_name, resource_name
+
     def step(self, action):
-        order_name, resource_name = action
+
+        order_name, resource_name = self.action_num_to_pair(action)
         order = self.orders[order_name]
         resource = self.resources[resource_name]
 
