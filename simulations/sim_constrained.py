@@ -249,10 +249,13 @@ class Env:
         if order_name not in self.possible_actions.keys() or resource_name not in self.possible_actions[order_name]:
             return "INVALID ACTION, Action is not possible"
         
+        set_up_time = resource.setup_times[(resource.last_product,order.product_name)]
         finish_time = self.time + resource.processing_times[(order.product_name, self.products[order.product_name][order.current_stage ][0][0])] + resource.setup_times[(resource.last_product,order.product_name)] 
         resource.is_occupied = True
         resource.last_product = order.product_name
         resource.free_at= finish_time
+
+        #print(resource.setup_times,(resource.last_product,order.product_name),set_up_time)
 
         if order.current_stage == 1:
             self.orders_not_initialise.pop(order_name)
@@ -345,7 +348,8 @@ class Env:
                 self.waiting_action_list.append(ord_t)
 
         state = self.get_state()
-        reward =  -1 * self.remaining_orders
+        reward =  -1 * self.remaining_orders - set_up_time
+        #reward = self.success
         done = not self.alive
         action_mask = self.get_action_mask()
         result = self.time if self.goal == "min_time" else self.success_rate
@@ -363,7 +367,7 @@ class Env:
 
         order_remaning_times = []
         for _ , order in self.orders.items():
-            rem_time = 0 # default rem time for finished orders.
+            rem_time = -1 # default rem time for finished orders.
             if not order.is_finished:
                 rem_time = self.time - order.due_date
             order_remaning_times.append(rem_time)
@@ -376,15 +380,22 @@ class Env:
                 resource_status.append(1)
             else:
                 resource_status.append(0)
+            resource_status.append(resource.stage)
+            pro = resource.last_product
+            for i,s in enumerate(self.products.keys()):
+                if s == pro:
+                    resource_status.append(i)
+            if pro == "":
+                resource_status.append(-1)
 
         state += resource_status
         return np.asarray(state,dtype=np.float32)
         
     def get_action_mask(self):
-        action_mask = np.zeros(len(self.orders) * len(self.resources))
+        action_mask = np.full(len(self.orders) * len(self.resources), -np.inf)
 
         for order, resources in self.possible_actions.items():
             for res in resources:
-                action_mask[self.order_id[order] * len(self.resources) + self.resource_id[res]] = 1
+                action_mask[self.order_id[order] * len(self.resources) + self.resource_id[res]] = 0
         return action_mask
     
