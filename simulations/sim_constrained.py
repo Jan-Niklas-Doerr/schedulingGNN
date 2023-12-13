@@ -91,7 +91,8 @@ class Order:
 
 class Env:
 
-    def __init__(self, visualise, verbose, goal="max_order",model=False):
+    def __init__(self, visualise, verbose, goal="max_order",model=False, test=False):
+
 
         self.DATA_PATH = "data/"
 
@@ -99,7 +100,7 @@ class Env:
         self.verbose = verbose
         self.goal = goal
         self.model = model
-
+        self.test = test
         self.initialise_env()
            
     def initialise_env(self):
@@ -194,8 +195,9 @@ class Env:
 
     def terminate(self):
        
-        #print("All products are produced at time: ", self.time)
-        #print("From total ", len(self.data["orders"]), " order, ", self.success, " was before their due dates. Success rate is: ", round((self.success / len(self.data["orders"]) * 100), 2) , "%" )
+        if self.test:
+            print("All products are produced at time: ", self.time)
+            print("From total ", len(self.data["orders"]), " order, ", self.success, " was before their due dates. Success rate is: ", round((self.success / len(self.data["orders"]) * 100), 2) , "%" )
         #print("Success rate is: ", round((self.success / len(self.data["orders"]) * 100), 2) , "%")
         self.success_rate = round((self.success / len(self.data["orders"]) * 100), 2) 
         self.alive = False
@@ -255,6 +257,8 @@ class Env:
         resource.last_product = order.product_name
         resource.free_at= finish_time
 
+        rew = 0
+
         #print(resource.setup_times,(resource.last_product,order.product_name),set_up_time)
 
         if order.current_stage == 1:
@@ -301,7 +305,8 @@ class Env:
                 
                 if order.due_date >= finish_time:
                     self.success += 1
-
+                    rew += 250
+                
                 if not self.possible_actions and self.action_list.empty() and not self.waiting_action_list:
                     self.terminate()
                     break
@@ -348,7 +353,7 @@ class Env:
                 self.waiting_action_list.append(ord_t)
 
         state = self.get_state()
-        reward =  -1 * self.remaining_orders - set_up_time
+        reward =  -1 * self.remaining_orders + rew
         #reward = self.success
         done = not self.alive
         action_mask = self.get_action_mask()
