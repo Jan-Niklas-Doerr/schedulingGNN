@@ -305,7 +305,7 @@ class Env:
                 
                 if order.due_date >= finish_time:
                     self.success += 1
-                    rew += 250
+                    rew += 5000
                 
                 if not self.possible_actions and self.action_list.empty() and not self.waiting_action_list:
                     self.terminate()
@@ -353,7 +353,7 @@ class Env:
                 self.waiting_action_list.append(ord_t)
 
         state = self.get_state()
-        reward =  -1 * self.remaining_orders + rew
+        reward =  -1.5 * self.remaining_orders + rew
         #reward = self.success
         done = not self.alive
         action_mask = self.get_action_mask()

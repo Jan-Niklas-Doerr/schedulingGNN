@@ -1,0 +1,655 @@
+{
+    "orders": {
+        "ORD_36": {
+            "due_date": 3959.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_05": {
+            "due_date": 1079.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_03": {
+            "due_date": 1079.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_25": {
+            "due_date": 2519.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_20": {
+            "due_date": 2519.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_39": {
+            "due_date": 3959.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_23": {
+            "due_date": 2519.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_11": {
+            "due_date": 1079.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_32": {
+            "due_date": 3959.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_30": {
+            "due_date": 2519.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_07": {
+            "due_date": 1079.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_44": {
+            "due_date": 3959.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_28": {
+            "due_date": 2519.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_02": {
+            "due_date": 1079.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_14": {
+            "due_date": 1079.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_53": {
+            "due_date": 3959.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_42": {
+            "due_date": 3959.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_16": {
+            "due_date": 2519.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_35": {
+            "due_date": 3959.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_33": {
+            "due_date": 3959.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_41": {
+            "due_date": 3959.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_31": {
+            "due_date": 3959.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_09": {
+            "due_date": 1079.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_10": {
+            "due_date": 1079.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_22": {
+            "due_date": 2519.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_27": {
+            "due_date": 2519.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_45": {
+            "due_date": 3959.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_50": {
+            "due_date": 3959.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_15": {
+            "due_date": 2519.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_49": {
+            "due_date": 3959.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_08": {
+            "due_date": 1079.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_51": {
+            "due_date": 3959.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_43": {
+            "due_date": 3959.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_52": {
+            "due_date": 3959.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_54": {
+            "due_date": 3959.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_34": {
+            "due_date": 3959.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_12": {
+            "due_date": 1079.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_17": {
+            "due_date": 2519.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_13": {
+            "due_date": 1079.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_18": {
+            "due_date": 2519.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_29": {
+            "due_date": 2519.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_38": {
+            "due_date": 3959.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_47": {
+            "due_date": 3959.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_48": {
+            "due_date": 3959.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_19": {
+            "due_date": 2519.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_04": {
+            "due_date": 1079.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_01": {
+            "due_date": 1079.0,
+            "product": "CEREAL_1"
+        },
+        "ORD_37": {
+            "due_date": 3959.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_46": {
+            "due_date": 3959.0,
+            "product": "CEREAL_3"
+        },
+        "ORD_06": {
+            "due_date": 1079.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_21": {
+            "due_date": 2519.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_40": {
+            "due_date": 3959.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_24": {
+            "due_date": 2519.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_26": {
+            "due_date": 2519.0,
+            "product": "CEREAL_2"
+        },
+        "ORD_55": {
+            "due_date": 3959.0,
+            "product": "CEREAL_3"
+        }
+    },
+    "resource_stage": {
+        "RES_1": 1,
+        "RES_3": 1,
+        "RES_2": 1,
+        "RES_4": 2
+    },
+    "NrStages": 2,
+    "product_operation_stage": {
+        "CEREAL_3": {
+            "OP_2": 2,
+            "OP_1": 1
+        },
+        "CEREAL_1": {
+            "OP_2": 2,
+            "OP_1": 1
+        },
+        "CEREAL_2": {
+            "OP_2": 2,
+            "OP_1": 1
+        }
+    },
+    "operations_per_product": {
+        "CEREAL_3": [
+            "OP_1",
+            "OP_2"
+        ],
+        "CEREAL_1": [
+            "OP_1",
+            "OP_2"
+        ],
+        "CEREAL_2": [
+            "OP_1",
+            "OP_2"
+        ]
+    },
+    "operations": [
+        "OP_1",
+        "OP_2"
+    ],
+    "setup_time": {
+        "RES_1": {
+            "CEREAL_3": {
+                "CEREAL_3": {
+                    "type": "Nonexisting"
+                },
+                "CEREAL_1": {
+                    "parameters": [
+                        35.0
+                    ],
+                    "min": 105.0,
+                    "type": "Exponential",
+                    "mean": 140.0
+                },
+                "CEREAL_2": {
+                    "parameters": [
+                        45.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 180.0
+                }
+            },
+            "CEREAL_1": {
+                "CEREAL_3": {
+                    "parameters": [
+                        67.5
+                    ],
+                    "min": 202.5,
+                    "type": "Exponential",
+                    "mean": 270.0
+                },
+                "CEREAL_1": {
+                    "type": "Nonexisting"
+                },
+                "CEREAL_2": {
+                    "parameters": [
+                        45.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 180.0
+                }
+            },
+            "CEREAL_2": {
+                "CEREAL_3": {
+                    "parameters": [
+                        45.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 180.0
+                },
+                "CEREAL_1": {
+                    "parameters": [
+                        45.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 180.0
+                },
+                "CEREAL_2": {
+                    "type": "Nonexisting"
+                }
+            }
+        },
+        "RES_3": {
+            "CEREAL_3": {
+                "CEREAL_3": {
+                    "type": "Nonexisting"
+                },
+                "CEREAL_1": {
+                    "type": "Nonexisting"
+                },
+                "CEREAL_2": {
+                    "parameters": [
+                        6.25
+                    ],
+                    "min": 18.75,
+                    "type": "Exponential",
+                    "mean": 25.0
+                }
+            },
+            "CEREAL_1": {
+                "CEREAL_3": {
+                    "type": "Nonexisting"
+                },
+                "CEREAL_1": {
+                    "type": "Nonexisting"
+                },
+                "CEREAL_2": {
+                    "type": "Nonexisting"
+                }
+            },
+            "CEREAL_2": {
+                "CEREAL_3": {
+                    "parameters": [
+                        6.25
+                    ],
+                    "min": 18.75,
+                    "type": "Exponential",
+                    "mean": 25.0
+                },
+                "CEREAL_1": {
+                    "type": "Nonexisting"
+                },
+                "CEREAL_2": {
+                    "type": "Nonexisting"
+                }
+            }
+        },
+        "RES_2": {
+            "CEREAL_3": {
+                "CEREAL_3": {
+                    "type": "Nonexisting"
+                },
+                "CEREAL_1": {
+                    "parameters": [
+                        52.5
+                    ],
+                    "min": 157.5,
+                    "type": "Exponential",
+                    "mean": 210.0
+                },
+                "CEREAL_2": {
+                    "parameters": [
+                        67.5
+                    ],
+                    "min": 202.5,
+                    "type": "Exponential",
+                    "mean": 270.0
+                }
+            },
+            "CEREAL_1": {
+                "CEREAL_3": {
+                    "parameters": [
+                        101.25
+                    ],
+                    "min": 303.75,
+                    "type": "Exponential",
+                    "mean": 405.0
+                },
+                "CEREAL_1": {
+                    "type": "Nonexisting"
+                },
+                "CEREAL_2": {
+                    "parameters": [
+                        67.5
+                    ],
+                    "min": 202.5,
+                    "type": "Exponential",
+                    "mean": 270.0
+                }
+            },
+            "CEREAL_2": {
+                "CEREAL_3": {
+                    "parameters": [
+                        67.5
+                    ],
+                    "min": 202.5,
+                    "type": "Exponential",
+                    "mean": 270.0
+                },
+                "CEREAL_1": {
+                    "parameters": [
+                        67.5
+                    ],
+                    "min": 202.5,
+                    "type": "Exponential",
+                    "mean": 270.0
+                },
+                "CEREAL_2": {
+                    "type": "Nonexisting"
+                }
+            }
+        },
+        "RES_4": {
+            "CEREAL_3": {
+                "CEREAL_3": {
+                    "type": "Nonexisting"
+                },
+                "CEREAL_1": {
+                    "parameters": [
+                        35.0
+                    ],
+                    "min": 105.0,
+                    "type": "Exponential",
+                    "mean": 140.0
+                },
+                "CEREAL_2": {
+                    "parameters": [
+                        45.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 180.0
+                }
+            },
+            "CEREAL_1": {
+                "CEREAL_3": {
+                    "parameters": [
+                        67.5
+                    ],
+                    "min": 202.5,
+                    "type": "Exponential",
+                    "mean": 270.0
+                },
+                "CEREAL_1": {
+                    "type": "Nonexisting"
+                },
+                "CEREAL_2": {
+                    "parameters": [
+                        45.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 180.0
+                }
+            },
+            "CEREAL_2": {
+                "CEREAL_3": {
+                    "parameters": [
+                        45.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 180.0
+                },
+                "CEREAL_1": {
+                    "parameters": [
+                        45.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 180.0
+                },
+                "CEREAL_2": {
+                    "type": "Nonexisting"
+                }
+            }
+        }
+    },
+    "operation_machine_compatibility": {
+        "CEREAL_3": {
+            "OP_2": [
+                "RES_4"
+            ],
+            "OP_1": [
+                "RES_1",
+                "RES_2",
+                "RES_3"
+            ]
+        },
+        "CEREAL_1": {
+            "OP_2": [
+                "RES_4"
+            ],
+            "OP_1": [
+                "RES_1",
+                "RES_2"
+            ]
+        },
+        "CEREAL_2": {
+            "OP_2": [
+                "RES_4"
+            ],
+            "OP_1": [
+                "RES_1",
+                "RES_2",
+                "RES_3"
+            ]
+        }
+    },
+    "resources": [
+        "RES_1",
+        "RES_2",
+        "RES_3",
+        "RES_4"
+    ],
+    "processing_time": {
+        "CEREAL_3": {
+            "OP_2": {
+                "RES_4": {
+                    "parameters": [
+                        11.25
+                    ],
+                    "min": 33.75,
+                    "type": "Exponential",
+                    "mean": 45.0
+                }
+            },
+            "OP_1": {
+                "RES_1": {
+                    "parameters": [
+                        52.5
+                    ],
+                    "min": 157.5,
+                    "type": "Exponential",
+                    "mean": 210.0
+                },
+                "RES_3": {
+                    "parameters": [
+                        55.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 190.0
+                },
+                "RES_2": {
+                    "parameters": [
+                        55.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 190.0
+                }
+            }
+        },
+        "CEREAL_1": {
+            "OP_2": {
+                "RES_4": {
+                    "parameters": [
+                        7.5
+                    ],
+                    "min": 22.5,
+                    "type": "Exponential",
+                    "mean": 30.0
+                }
+            },
+            "OP_1": {
+                "RES_1": {
+                    "parameters": [
+                        35.0
+                    ],
+                    "min": 105.0,
+                    "type": "Exponential",
+                    "mean": 140.0
+                },
+                "RES_2": {
+                    "parameters": [
+                        30.0
+                    ],
+                    "min": 90.0,
+                    "type": "Exponential",
+                    "mean": 120.0
+                }
+            }
+        },
+        "CEREAL_2": {
+            "OP_2": {
+                "RES_4": {
+                    "parameters": [
+                        11.25
+                    ],
+                    "min": 33.75,
+                    "type": "Exponential",
+                    "mean": 45.0
+                }
+            },
+            "OP_1": {
+                "RES_1": {
+                    "parameters": [
+                        52.5
+                    ],
+                    "min": 157.5,
+                    "type": "Exponential",
+                    "mean": 210.0
+                },
+                "RES_3": {
+                    "parameters": [
+                        55.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 190.0
+                },
+                "RES_2": {
+                    "parameters": [
+                        55.0
+                    ],
+                    "min": 135.0,
+                    "type": "Exponential",
+                    "mean": 190.0
+                }
+            }
+        }
+    },
+    "products": [
+        "CEREAL_1",
+        "CEREAL_2",
+        "CEREAL_3"
+    ]
+}
