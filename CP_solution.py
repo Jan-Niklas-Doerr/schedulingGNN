@@ -191,7 +191,7 @@ def CPsolution(instance, objective, stoppingCriteria = "", saveGantt = False):
 
     # Solve model 
     print('Solving model...')
-    res = mdl.solve(TimeLimit= 600, # TODO dynamic stopping cirteria? and other params to tune solver!
+    res = mdl.solve(TimeLimit= 60, # TODO dynamic stopping cirteria? and other params to tune solver!
                     agent = "local",
                     execfile="C:/Program Files/IBM/ILOG/CPLEX_Studio221/cpoptimizer/bin/x64_win64/cpoptimizer.exe")
 
@@ -239,17 +239,27 @@ def optimal_solution(objective):
     basedir = str(pathlib.Path(__file__).parent.resolve()) + "/data"
     # get all files in directory excluding other directories
     files = [f for f in os.listdir(basedir) if os.path.isfile(os.path.join(basedir,f))]
+    files.remove("solutions.json")
 
-    solutions = {}
+    if os.path.isfile(os.path.join(basedir,"solutions.json")):
+        with open(os.path.join(basedir,"solutions.json")) as f:
+            solutions = json.load(f)
+    else:
+        solutions = {}
 
     for filestr in files:
         with open(os.path.join(basedir,filestr)) as f:
             instance = json.load(f)
 
         obj, _ = CPsolution(instance, objective)
-        solutions.setdefault(filestr,{"objective": obj})
+        if objective == [1,0]:
+            key = "objective_makespan"
+        elif objective == [0,1]:
+            key = "objective_tardiness"
+        solutions.setdefault(filestr,{}).setdefault(key,obj)
  
-        with open(os.path.join(basedir,"solutions.json"),'w') as f2:
-            json.dump(solutions, f2, indent=4)
+    with open(os.path.join(basedir,"solutions.json"),'w') as f2:
+        json.dump(solutions, f2, indent=4)
 
-optimal_solution([1,0])
+#optimal_solution([1,0])
+optimal_solution([0,1])

@@ -1,5 +1,18 @@
 {
+    "useCase_2_stages.json": {
+        "objective_makespan": 3645.0000000000005,
+        "objective_tardiness": 2188.000000000001
+    },
     "useCase_3_stages.json": {
-        "objective": 3640.0000000000005
+        "objective_makespan": 3840.0000000000005,
+        "objective_tardiness": 127.00000000000003
+    },
+    "useCase_4_stages.json": {
+        "objective_makespan": 3880.0000000000005,
+        "objective_tardiness": 4971.000000000004
+    },
+    "useCase_5_stages.json": {
+        "objective_makespan": 3940.0000000000005,
+        "objective_tardiness": 5023.000000000003
     }
 }
