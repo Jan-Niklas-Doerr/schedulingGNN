@@ -3,6 +3,8 @@ import json
 from queue import PriorityQueue
 import random, os
 import plotly.figure_factory as ff
+from torch_geometric.data import Data
+import torch
 
 
 class Resource:
@@ -14,17 +16,21 @@ class Resource:
     # setup_times = {}
 
     def __init__(self, name="", stage=0):
+        self.id = 0
         self.name = name
         self.stage = stage
         self.processing_times = {}
         self.setup_times = {}
         self.last_product = "" 
         self.is_occupied = False
+        self.order_name = ""
         self.free_at = 0
     
     def __repr__(self):
         return "[ " + self.name + " " + str(self.stage) + " ]"
 
+    def set_id(self,id):
+        self.id = id
 
     def set_stage(self, stage):
         self.stage = stage
@@ -91,7 +97,7 @@ class Order:
 
 class Env:
 
-    def __init__(self, visualise, verbose, goal="max_order",model=False, test=False):
+    def __init__(self, visualise, verbose, goal="max_order",model=False, test=False, graph=False):
 
 
         self.DATA_PATH = "data/"
@@ -101,6 +107,7 @@ class Env:
         self.goal = goal
         self.model = model
         self.test = test
+        self.graph = graph
         self.initialise_env()
            
     def initialise_env(self):
@@ -121,7 +128,7 @@ class Env:
         self.processing_times = []
         self.define_resource_times()
 
-        self.stages = self.initialize_stages( [ [] for _ in range(self.NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
+        self.initialize_stages( [ [] for _ in range(self.NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
         self.orders = {order_name:Order(order_name, args["due_date"], args["product"]) for order_name, args in self.data["orders"].items()}
         self.orders_not_initialise = {order_name:Order(order_name, args["due_date"], args["product"]) for order_name, args in self.data["orders"].items()}
         self.remaining_orders = len(self.orders)
@@ -133,6 +140,11 @@ class Env:
         self.resource_id = {}
         for id, resource_name in enumerate(self.resources.keys()):
             self.resource_id[resource_name] = id
+            self.resources[resource_name].set_id(id)
+
+        self.id_resource = {}
+        for res in self.resources.values():
+            self.id_resource[res.id] = res
         
         self.action_list = PriorityQueue()
         # [(finish_time, order, resource) ... ]
@@ -147,6 +159,9 @@ class Env:
 
         self.n_actions = len(self.orders) * len(self.resources)
         self.n_states = len(self.get_state())
+        self.node_feature_dim = len(self.get_features(self.id_resource[0]))
+        self.stage_connectivity = []
+        self.initialize_stages_connectivity()
 
         self.possible_actions = {order.order_name: self.products[order.product_name][order.current_stage][0][1].copy() for order in self.orders_not_initialise.values()}
 
@@ -224,7 +239,8 @@ class Env:
         self.alive = True
         self.initialise_env()
 
-        return self.get_state(), self.get_action_mask()
+        
+        return self.get_state(), self.get_action_mask() if not self.graph else self.get_state_graph(), self.get_action_mask()
 
     def form_orders(orders):
         ordered = PriorityQueue()
@@ -256,6 +272,7 @@ class Env:
         resource.is_occupied = True
         resource.last_product = order.product_name
         resource.free_at= finish_time
+        resource.order = order_name
 
         rew = 0
 
@@ -305,7 +322,8 @@ class Env:
                 
                 if order.due_date >= finish_time:
                     self.success += 1
-                    rew += 5000
+                    if self.goal != "min_time" :
+                        rew += 5000
                 
                 if not self.possible_actions and self.action_list.empty() and not self.waiting_action_list:
                     self.terminate()
@@ -352,14 +370,98 @@ class Env:
             if not finished_product:
                 self.waiting_action_list.append(ord_t)
 
-        state = self.get_state()
-        reward =  -1.5 * self.remaining_orders + rew
+
+        state = self.get_state_graph() if self.graph else self.get_state()
+
+        if self.goal == "min_time":
+            reward =  -1.5 * self.remaining_orders  - self.time
+        else:
+            reward =  -1.5 * self.remaining_orders + rew
         #reward = self.success
         done = not self.alive
         action_mask = self.get_action_mask()
         result = self.time if self.goal == "min_time" else self.success_rate
 
         return state, reward, done, action_mask, result
+
+    def initialize_stages_connectivity(self):
+        for stage_num in range(self.NR_STAGES -1):
+            for res1 in self.stages[stage_num]:
+                for res2 in self.stages[stage_num + 1]:
+                    self.stage_connectivity.append((res1.id,res2.id))
+                    self.stage_connectivity.append((res2.id,res1.id)) # Bidirectional
+                    
+
+#x: Node feature matrix with shape [num_nodes, num_node_features]
+#edge_index: Graph connectivity in COO format with shape [2, num_edges] and type torch.long
+#edge_attr: Edge feature matrix with shape [num_edges, num_edge_features] (optional)
+    def get_state_graph(self):
+        node_features = []
+        for id in range(len(self.resources)):
+            node_features.append(self.get_features(self.id_resource[id]))
+            
+        x = torch.tensor(node_features, dtype=torch.float)
+
+        # Create edge index (edge_index)
+        # Assuming state.edges is a list of tuples representing connections (src, dest)
+        edge_index = torch.tensor(self.stage_connectivity, dtype=torch.long).t().contiguous()
+
+        # Optionally, create edge features (edge_attr)
+        # Assuming state.edge_attrs is a list of edge feature vectors
+        # edge_attr = torch.tensor(state.edge_attrs, dtype=torch.float)
+
+        # Create a data object
+        state_graph = Data(x=x, edge_index=edge_index)
+        # Optionally add edge_attr
+        # data.edge_attr = edge_attr
+
+        return state_graph
+    
+
+    def get_features(self, resource):
+
+        feature_list = []
+        feature_list.append(resource.id) #1
+        
+        # num_prod * num_prod 
+        for product1, _ in self.products.items():
+            for product2 in self.products:
+                feature_list.append(resource.setup_times[(product1, product2)])
+
+        for product in self.products:          # num_prod
+            found = False
+            for (pro_name, _),time in resource.processing_times.items():
+                if pro_name == product:
+                    feature_list.append(time)
+                    found = True
+                    break
+            if not found:
+                feature_list.append(-1)
+        
+        if resource.is_occupied:  #1
+            feature_list.append(1) 
+        else:
+            feature_list.append(0)
+        feature_list.append(resource.stage) #1
+        pro = resource.last_product         #1
+        for i,s in enumerate(self.products.keys()):
+            if s == pro:
+                feature_list.append(i) 
+        if pro == "":
+            feature_list.append(-1)
+
+        feature_list.append(resource.free_at) #1
+        if resource.order_name != "":
+            feature_list.append(self.orders(resource.order_name).due_date) # 1
+            feature_list.append(self.order_id(resource.order_name)) # 1
+        # Possible: order path - order remaining estimated time
+        else:
+            feature_list.append(-1) # 1
+            feature_list.append(-1) # 1
+
+
+        return feature_list
+        
 
     def get_state(self):
         state = []
