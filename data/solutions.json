@@ -14,5 +14,8 @@
     "useCase_5_stages.json": {
         "objective_makespan": 3940.0000000000005,
         "objective_tardiness": 5023.000000000003
+    },
+    "dpg_nosetup_singlestage_feworders.json": {
+        "objective_makespan": 74.0
     }
 }
