@@ -1,0 +1,667 @@
+{
+    "resources": [
+        "RES_1_1",
+        "RES_1_2",
+        "RES_1_3",
+        "RES_1_4",
+        "RES_2_1",
+        "RES_2_2",
+        "RES_3_1",
+        "RES_3_2",
+        "RES_3_3"
+    ],
+    "resource_stage": {
+        "RES_1_1": 1,
+        "RES_1_2": 1,
+        "RES_1_3": 1,
+        "RES_1_4": 1,
+        "RES_2_1": 2,
+        "RES_2_2": 2,
+        "RES_3_1": 3,
+        "RES_3_2": 3,
+        "RES_3_3": 3
+    },
+    "stage_resource": {
+        "1": [
+            "RES_1_1",
+            "RES_1_2",
+            "RES_1_3",
+            "RES_1_4"
+        ],
+        "2": [
+            "RES_2_1",
+            "RES_2_2"
+        ],
+        "3": [
+            "RES_3_1",
+            "RES_3_2",
+            "RES_3_3"
+        ]
+    },
+    "NrStages": 3,
+    "products": [
+        "PRODUCT_1",
+        "PRODUCT_2",
+        "PRODUCT_3",
+        "PRODUCT_4"
+    ],
+    "operations": [
+        "OP_2",
+        "OP_3",
+        "OP_1"
+    ],
+    "product_operation_stage": {
+        "PRODUCT_1": {
+            "OP_1": 1,
+            "OP_2": 2,
+            "OP_3": 3
+        },
+        "PRODUCT_2": {
+            "OP_1": 1,
+            "OP_2": 2,
+            "OP_3": 3
+        },
+        "PRODUCT_3": {
+            "OP_1": 1,
+            "OP_2": 2,
+            "OP_3": 3
+        },
+        "PRODUCT_4": {
+            "OP_1": 1,
+            "OP_2": 2,
+            "OP_3": 3
+        }
+    },
+    "operations_per_product": {
+        "PRODUCT_1": [
+            "OP_1",
+            "OP_2",
+            "OP_3"
+        ],
+        "PRODUCT_2": [
+            "OP_1",
+            "OP_2",
+            "OP_3"
+        ],
+        "PRODUCT_3": [
+            "OP_1",
+            "OP_2",
+            "OP_3"
+        ],
+        "PRODUCT_4": [
+            "OP_1",
+            "OP_2",
+            "OP_3"
+        ]
+    },
+    "operation_machine_compatibility": {
+        "PRODUCT_1": {
+            "OP_1": [
+                "RES_1_1",
+                "RES_1_2",
+                "RES_1_3",
+                "RES_1_4"
+            ],
+            "OP_2": [
+                "RES_2_1",
+                "RES_2_2"
+            ],
+            "OP_3": [
+                "RES_3_1",
+                "RES_3_2",
+                "RES_3_3"
+            ]
+        },
+        "PRODUCT_2": {
+            "OP_1": [
+                "RES_1_1",
+                "RES_1_2",
+                "RES_1_3",
+                "RES_1_4"
+            ],
+            "OP_2": [
+                "RES_2_1",
+                "RES_2_2"
+            ],
+            "OP_3": [
+                "RES_3_1",
+                "RES_3_2",
+                "RES_3_3"
+            ]
+        },
+        "PRODUCT_3": {
+            "OP_1": [
+                "RES_1_1",
+                "RES_1_2",
+                "RES_1_3",
+                "RES_1_4"
+            ],
+            "OP_2": [
+                "RES_2_1",
+                "RES_2_2"
+            ],
+            "OP_3": [
+                "RES_3_1",
+                "RES_3_2",
+                "RES_3_3"
+            ]
+        },
+        "PRODUCT_4": {
+            "OP_1": [
+                "RES_1_1",
+                "RES_1_2",
+                "RES_1_3",
+                "RES_1_4"
+            ],
+            "OP_2": [
+                "RES_2_1",
+                "RES_2_2"
+            ],
+            "OP_3": [
+                "RES_3_1",
+                "RES_3_2",
+                "RES_3_3"
+            ]
+        }
+    },
+    "processing_time": {
+        "PRODUCT_1": {
+            "OP_1": {
+                "RES_1_1": 100,
+                "RES_1_2": 35,
+                "RES_1_3": 100,
+                "RES_1_4": 100
+            },
+            "OP_2": {
+                "RES_2_1": 10,
+                "RES_2_2": 10
+            },
+            "OP_3": {
+                "RES_3_1": 100,
+                "RES_3_2": 100,
+                "RES_3_3": 100
+            }
+        },
+        "PRODUCT_2": {
+            "OP_1": {
+                "RES_1_1": 100,
+                "RES_1_2": 100,
+                "RES_1_3": 100,
+                "RES_1_4": 100
+            },
+            "OP_2": {
+                "RES_2_1": 10,
+                "RES_2_2": 10
+            },
+            "OP_3": {
+                "RES_3_1": 10,
+                "RES_3_2": 10,
+                "RES_3_3": 10
+            }
+        },
+        "PRODUCT_3": {
+            "OP_1": {
+                "RES_1_1": 15,
+                "RES_1_2": 15,
+                "RES_1_3": 10,
+                "RES_1_4": 10
+            },
+            "OP_2": {
+                "RES_2_1": 10,
+                "RES_2_2": 10
+            },
+            "OP_3": {
+                "RES_3_1": 10,
+                "RES_3_2": 10,
+                "RES_3_3": 10
+            }
+        },
+        "PRODUCT_4": {
+            "OP_1": {
+                "RES_1_1": 41,
+                "RES_1_2": 100,
+                "RES_1_3": 92,
+                "RES_1_4": 100
+            },
+            "OP_2": {
+                "RES_2_1": 100,
+                "RES_2_2": 100
+            },
+            "OP_3": {
+                "RES_3_1": 100,
+                "RES_3_2": 34,
+                "RES_3_3": 100
+            }
+        }
+    },
+    "setup_time": {
+        "RES_1_1": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 33,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 19
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 18,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 10
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 23,
+                "PRODUCT_2": 24,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 31
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 10,
+                "PRODUCT_2": 27,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 0
+            }
+        },
+        "RES_1_2": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 10,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 10
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 66,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 10
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 56,
+                "PRODUCT_2": 11,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 10
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 57,
+                "PRODUCT_2": 34,
+                "PRODUCT_3": 44,
+                "PRODUCT_4": 0
+            }
+        },
+        "RES_1_3": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 10,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 11
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 24,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 31
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 38,
+                "PRODUCT_2": 14,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 28
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 10,
+                "PRODUCT_2": 10,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 0
+            }
+        },
+        "RES_1_4": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 10,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 10
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 34,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 28,
+                "PRODUCT_4": 24
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 11,
+                "PRODUCT_2": 10,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 11
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 11,
+                "PRODUCT_2": 10,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 0
+            }
+        },
+        "RES_2_1": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 10,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 10
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 11,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 10
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 19,
+                "PRODUCT_2": 11,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 21
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 22,
+                "PRODUCT_2": 11,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 0
+            }
+        },
+        "RES_2_2": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 14,
+                "PRODUCT_3": 11,
+                "PRODUCT_4": 18
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 10,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 21,
+                "PRODUCT_4": 27
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 18,
+                "PRODUCT_2": 17,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 10
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 10,
+                "PRODUCT_2": 10,
+                "PRODUCT_3": 11,
+                "PRODUCT_4": 0
+            }
+        },
+        "RES_3_1": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 35,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 31
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 10,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 11,
+                "PRODUCT_4": 11
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 11,
+                "PRODUCT_2": 35,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 27
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 20,
+                "PRODUCT_2": 10,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 0
+            }
+        },
+        "RES_3_2": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 11,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 17
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 10,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 11
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 42,
+                "PRODUCT_2": 53,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 59
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 10,
+                "PRODUCT_2": 10,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 0
+            }
+        },
+        "RES_3_3": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 11,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 15
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 10,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 11
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 27,
+                "PRODUCT_2": 37,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 12
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 34,
+                "PRODUCT_2": 41,
+                "PRODUCT_3": 10,
+                "PRODUCT_4": 0
+            }
+        }
+    },
+    "initial_setup": {
+        "RES_1_1": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        },
+        "RES_1_2": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        },
+        "RES_1_3": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        },
+        "RES_1_4": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        },
+        "RES_2_1": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        },
+        "RES_2_2": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        },
+        "RES_3_1": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        },
+        "RES_3_2": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        },
+        "RES_3_3": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        }
+    },
+    "arrival_prob": {
+        "PRODUCT_1": 0.25,
+        "PRODUCT_2": 0.25,
+        "PRODUCT_3": 0.25,
+        "PRODUCT_4": 0.25
+    },
+    "norm_workloads": {
+        "RES_1_1": 0.8499623493975904,
+        "RES_1_2": 0.8911897590361446,
+        "RES_1_3": 0.9691265060240963,
+        "RES_1_4": 0.976468373493976,
+        "RES_2_1": 0.9092620481927711,
+        "RES_2_2": 0.9341114457831325,
+        "RES_3_1": 0.9947289156626505,
+        "RES_3_2": 0.7703313253012049,
+        "RES_3_3": 1.0
+    },
+    "workloads": {
+        "RES_1_1": 18.8125,
+        "RES_1_2": 19.725,
+        "RES_1_3": 21.45,
+        "RES_1_4": 21.6125,
+        "RES_2_1": 20.125,
+        "RES_2_2": 20.675,
+        "RES_3_1": 22.016666666666666,
+        "RES_3_2": 17.05,
+        "RES_3_3": 22.133333333333333
+    },
+    "flexibility_score": 3.0,
+    "epsilon": 0.0,
+    "seed_layout": 13,
+    "summary": {
+        "layout_dict": {
+            "nr_stages": 3,
+            "nr_products": 4,
+            "prod_arrival_prob": [
+                0.25,
+                0.25,
+                0.25,
+                0.25
+            ],
+            "res_range": [
+                2,
+                5
+            ],
+            "skipping_prob": 0.0,
+            "full_routing": true,
+            "flexibility_target": 3.0,
+            "processing_range": [
+                10,
+                100
+            ],
+            "initial_setup_range": [
+                0,
+                0
+            ],
+            "setup_range": [
+                10,
+                100
+            ],
+            "ratio_setup_processing": 0.2,
+            "degree_of_unrelatedness": 0.5,
+            "seed": 13,
+            "bottleneck_dict": null,
+            "identical_machines": false
+        },
+        "orderbook_dict": {
+            "number_orders": 20,
+            "tightness_due_dates": 0,
+            "seed": 42,
+            "single_orders": false,
+            "priorities": [
+                1
+            ]
+        }
+    },
+    "orders": {
+        "ORD_01": {
+            "product": "PRODUCT_4"
+        },
+        "ORD_02": {
+            "product": "PRODUCT_1"
+        },
+        "ORD_03": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_04": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_05": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_06": {
+            "product": "PRODUCT_2"
+        },
+        "ORD_07": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_08": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_09": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_10": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_11": {
+            "product": "PRODUCT_2"
+        },
+        "ORD_12": {
+            "product": "PRODUCT_2"
+        },
+        "ORD_13": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_14": {
+            "product": "PRODUCT_1"
+        },
+        "ORD_15": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_16": {
+            "product": "PRODUCT_4"
+        },
+        "ORD_17": {
+            "product": "PRODUCT_1"
+        },
+        "ORD_18": {
+            "product": "PRODUCT_4"
+        },
+        "ORD_19": {
+            "product": "PRODUCT_1"
+        },
+        "ORD_20": {
+            "product": "PRODUCT_2"
+        }
+    }
+}

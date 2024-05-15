@@ -1,0 +1,343 @@
+{
+    "resources": [
+        "RES_1_1",
+        "RES_1_2",
+        "RES_1_3"
+    ],
+    "resource_stage": {
+        "RES_1_1": 1,
+        "RES_1_2": 1,
+        "RES_1_3": 1
+    },
+    "stage_resource": {
+        "1": [
+            "RES_1_1",
+            "RES_1_2",
+            "RES_1_3"
+        ]
+    },
+    "NrStages": 1,
+    "products": [
+        "PRODUCT_1",
+        "PRODUCT_2",
+        "PRODUCT_3",
+        "PRODUCT_4"
+    ],
+    "operations": [
+        "OP_1"
+    ],
+    "product_operation_stage": {
+        "PRODUCT_1": {
+            "OP_1": 1
+        },
+        "PRODUCT_2": {
+            "OP_1": 1
+        },
+        "PRODUCT_3": {
+            "OP_1": 1
+        },
+        "PRODUCT_4": {
+            "OP_1": 1
+        }
+    },
+    "operations_per_product": {
+        "PRODUCT_1": [
+            "OP_1"
+        ],
+        "PRODUCT_2": [
+            "OP_1"
+        ],
+        "PRODUCT_3": [
+            "OP_1"
+        ],
+        "PRODUCT_4": [
+            "OP_1"
+        ]
+    },
+    "operation_machine_compatibility": {
+        "PRODUCT_1": {
+            "OP_1": [
+                "RES_1_1",
+                "RES_1_2",
+                "RES_1_3"
+            ]
+        },
+        "PRODUCT_2": {
+            "OP_1": [
+                "RES_1_1",
+                "RES_1_2",
+                "RES_1_3"
+            ]
+        },
+        "PRODUCT_3": {
+            "OP_1": [
+                "RES_1_1",
+                "RES_1_2",
+                "RES_1_3"
+            ]
+        },
+        "PRODUCT_4": {
+            "OP_1": [
+                "RES_1_1",
+                "RES_1_2",
+                "RES_1_3"
+            ]
+        }
+    },
+    "processing_time": {
+        "PRODUCT_1": {
+            "OP_1": {
+                "RES_1_1": 65,
+                "RES_1_2": 90,
+                "RES_1_3": 92
+            }
+        },
+        "PRODUCT_2": {
+            "OP_1": {
+                "RES_1_1": 38,
+                "RES_1_2": 36,
+                "RES_1_3": 27
+            }
+        },
+        "PRODUCT_3": {
+            "OP_1": {
+                "RES_1_1": 53,
+                "RES_1_2": 42,
+                "RES_1_3": 40
+            }
+        },
+        "PRODUCT_4": {
+            "OP_1": {
+                "RES_1_1": 40,
+                "RES_1_2": 90,
+                "RES_1_3": 83
+            }
+        }
+    },
+    "setup_time": {
+        "RES_1_1": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            }
+        },
+        "RES_1_2": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            }
+        },
+        "RES_1_3": {
+            "PRODUCT_1": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            },
+            "PRODUCT_2": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            },
+            "PRODUCT_3": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            },
+            "PRODUCT_4": {
+                "PRODUCT_1": 0,
+                "PRODUCT_2": 0,
+                "PRODUCT_3": 0,
+                "PRODUCT_4": 0
+            }
+        }
+    },
+    "initial_setup": {
+        "RES_1_1": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        },
+        "RES_1_2": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        },
+        "RES_1_3": {
+            "PRODUCT_1": 0,
+            "PRODUCT_2": 0,
+            "PRODUCT_3": 0,
+            "PRODUCT_4": 0
+        }
+    },
+    "arrival_prob": {
+        "PRODUCT_1": 0.25,
+        "PRODUCT_2": 0.25,
+        "PRODUCT_3": 0.25,
+        "PRODUCT_4": 0.25
+    },
+    "norm_workloads": {
+        "RES_1_1": 0.7596899224806201,
+        "RES_1_2": 1.0,
+        "RES_1_3": 0.937984496124031
+    },
+    "workloads": {
+        "RES_1_1": 16.333333333333332,
+        "RES_1_2": 21.5,
+        "RES_1_3": 20.166666666666668
+    },
+    "flexibility_score": 3.0,
+    "epsilon": 0.0,
+    "seed_layout": 11,
+    "summary": {
+        "layout_dict": {
+            "nr_stages": 1,
+            "nr_products": 4,
+            "prod_arrival_prob": [
+                0.25,
+                0.25,
+                0.25,
+                0.25
+            ],
+            "res_range": [
+                2,
+                5
+            ],
+            "skipping_prob": 0.0,
+            "full_routing": true,
+            "flexibility_target": 3.0,
+            "processing_range": [
+                10,
+                100
+            ],
+            "initial_setup_range": [
+                0,
+                0
+            ],
+            "setup_range": [
+                10,
+                100
+            ],
+            "ratio_setup_processing": 0.0,
+            "degree_of_unrelatedness": 0.5,
+            "seed": 11,
+            "bottleneck_dict": null,
+            "identical_machines": false
+        },
+        "orderbook_dict": {
+            "number_orders": 20,
+            "tightness_due_dates": 0,
+            "seed": 43,
+            "single_orders": false,
+            "priorities": [
+                1
+            ]
+        }
+    },
+    "orders": {
+        "ORD_01": {
+            "product": "PRODUCT_1"
+        },
+        "ORD_02": {
+            "product": "PRODUCT_2"
+        },
+        "ORD_03": {
+            "product": "PRODUCT_4"
+        },
+        "ORD_04": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_05": {
+            "product": "PRODUCT_2"
+        },
+        "ORD_06": {
+            "product": "PRODUCT_2"
+        },
+        "ORD_07": {
+            "product": "PRODUCT_1"
+        },
+        "ORD_08": {
+            "product": "PRODUCT_2"
+        },
+        "ORD_09": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_10": {
+            "product": "PRODUCT_4"
+        },
+        "ORD_11": {
+            "product": "PRODUCT_4"
+        },
+        "ORD_12": {
+            "product": "PRODUCT_2"
+        },
+        "ORD_13": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_14": {
+            "product": "PRODUCT_2"
+        },
+        "ORD_15": {
+            "product": "PRODUCT_1"
+        },
+        "ORD_16": {
+            "product": "PRODUCT_4"
+        },
+        "ORD_17": {
+            "product": "PRODUCT_3"
+        },
+        "ORD_18": {
+            "product": "PRODUCT_4"
+        },
+        "ORD_19": {
+            "product": "PRODUCT_4"
+        },
+        "ORD_20": {
+            "product": "PRODUCT_3"
+        }
+    }
+}

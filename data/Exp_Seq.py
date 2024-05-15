@@ -30,7 +30,7 @@ def convert_to_order(seq, orderArray, machineNumber):
 #-----------------------------------------------------------------------------
 
 
-def cp_solution(instance, objective, setups_coupled=True, time_limit=600, exp_measure="mean", saveGantt=False,
+def cp_solution(instance, objective, setups_coupled=True, time_limit=600, saveGantt=False,
                 precision=0.001, order_id_sorting=True, due_date_sorting=False, show_log=False):
     """
     create CP model based on inputs and returns objective value (and solution?)
@@ -62,11 +62,6 @@ def cp_solution(instance, objective, setups_coupled=True, time_limit=600, exp_me
         
     for a in tmpJ:
         JOBS.append(a)
-        if data["orders"][a]["due_date"] != None:
-            # raise Exception("due date flag is true")
-            DUE_DATE.setdefault(a,round(data["orders"][a]["due_date"] / precision))
-        else:
-            DUE_DATE.setdefault(a,1000000) # dummy value
         
         tmpType = data["orders"][a]["product"]
         sorted_within_type[tmpType].append(a)
@@ -79,7 +74,7 @@ def cp_solution(instance, objective, setups_coupled=True, time_limit=600, exp_me
 
             for c in ELIGIBLE_MACHINES[a][b]:
                 product = data["orders"][a]["product"]
-                tmpTime = round(data["processing_time"][product][b][c][exp_measure] / precision) 
+                tmpTime = round(data["processing_time"][product][b][c] / precision) 
                 OP_DURATIONS.setdefault(a, {}).setdefault(b, {}).setdefault(c, tmpTime)
 
     for m in MACHINES:
@@ -107,16 +102,11 @@ def cp_solution(instance, objective, setups_coupled=True, time_limit=600, exp_me
                 for j in JOBS:
                     tmpFrom = JOBS.index(j) + 1
                     jType = TYPES_LOOKUP[tmpFrom-1]
-                    if data["setup_time"][c][jType][tmpType]["type"] == "Nonexisting":
-                        if setups_coupled:
-                            SETUPS[c][tmpIndex][tmpFrom] = 0
-                        else:
-                            SETUPS[c][tmpIndex, tmpFrom] = 0
+
+                    if setups_coupled:
+                        SETUPS[c][tmpIndex][tmpFrom] = round(data["setup_time"][c][jType][tmpType] / precision)
                     else:
-                        if setups_coupled:
-                            SETUPS[c][tmpIndex][tmpFrom] = round(data["setup_time"][c][jType][tmpType][exp_measure] / precision)
-                        else:
-                            SETUPS[c][tmpIndex, tmpFrom] = round(data["setup_time"][c][jType][tmpType][exp_measure] / precision)
+                        SETUPS[c][tmpIndex, tmpFrom] = round(data["setup_time"][c][jType][tmpType] / precision)
     #-----------------------------------------------------------------------------
     # Build the model
     #-----------------------------------------------------------------------------
@@ -169,15 +159,6 @@ def cp_solution(instance, objective, setups_coupled=True, time_limit=600, exp_me
     # Alternative constraints
     mdl.add(cp.alternative(Z_io[i,o], [X_iom[a] for a in X_iom if a[0:2]==(i,o)]) for i,o in Z_io)
 
-
-    # add additional constraints same type with earlier due date needs to start before
-    if due_date_sorting:
-        for i,i2 in enumerate(JOBS):
-            for j,j2 in enumerate(JOBS):
-                if TYPES_LOOKUP[i] == TYPES_LOOKUP[j]: 
-                    if DUE_DATE[i2] < DUE_DATE[j2] or (DUE_DATE[i2] == DUE_DATE[j2] and i2 < j2):
-                        mdl.add(cp.start_before_start(Z_io[i,0], Z_io[j,0]))
-
     if order_id_sorting:
         for p in products:
             for i,i2 in enumerate(sorted_within_type[p]):
@@ -192,9 +173,6 @@ def cp_solution(instance, objective, setups_coupled=True, time_limit=600, exp_me
     # objective criteria
 
     # specify Tardiness
-    Tardiness = [cp.max(0, cp.end_of(Z_io[i, len(OPERATIONS[J]) -1]) - (DUE_DATE[J])) for i,J in enumerate(JOBS)]
-
-    TotalTardiness = cp.sum(Tardiness)
 
     # specifiy flow time
     Flowtime = [cp.end_of(Z_io[i,len(OPERATIONS[J])-1]) - cp.start_of(Z_io[i,0]) for i,J in enumerate(JOBS)]
@@ -204,12 +182,9 @@ def cp_solution(instance, objective, setups_coupled=True, time_limit=600, exp_me
     # specifiy makespan
     CMax = cp.max(cp.end_of(Z_io[i,o]) for i,o in Z_io)
 
-    # number of tardy Jobs
-    NB_Tardy = cp.sum(i != 0 for i in Tardiness)
-
     # Minimize objective!
     # create objective vector
-    objVec = [CMax * precision, TotalTardiness * precision] # TODO same order as in agent!
+    objVec = [CMax * precision, 0] # TODO same order as in agent!
     # TODO use objective vector!
     mdl.add(cp.minimize(cp.scal_prod(objective,objVec)))
     # mdl.add(cp.minimize((CMax) / 60))
@@ -264,12 +239,13 @@ def cp_solution(instance, objective, setups_coupled=True, time_limit=600, exp_me
         return TmpObjective, SolSequences, curve # TODO return solution as well?
 
 
-def expected_sequence(instance_names, objective, exp_measure="mean", setups_coupled=True, **kwargs):
+def expected_sequence(instance_names, objective, setups_coupled=True, **kwargs):
     """
     loop over all instances and according test samples in folder
     """
-    assert exp_measure in ["mean", "median"], "Invalid measure for expected value!"
-    
+
+    solutions = {}
+
     if objective == [0, 1]:
         obj = "tardiness"
     elif objective == [1, 0]:
@@ -280,17 +256,17 @@ def expected_sequence(instance_names, objective, exp_measure="mean", setups_coup
         with open(os.path.join("data/", file_name)) as f:
             instance = json.load(f)
 
-        obj, sequence, curve = cp_solution(instance, objective, setups_coupled=setups_coupled, exp_measure=exp_measure, **kwargs)
+        obj, sequence, curve = cp_solution(instance, objective, setups_coupled=setups_coupled, **kwargs)
         print("Objective Value: ", obj)
         dict_seq = {}
         dict_seq.setdefault('sequence', sequence)
         dict_seq.setdefault('objective', {}).setdefault('exp_objective', obj)
         dict_seq['objective'].setdefault('obj_curve', curve)
 
-        solution_file = instance_file + "_sol.json"
+        solutions[instance_file] = dict_seq
 
-        with open(os.path.join("data/", solution_file), 'w') as f2:
-            json.dump(dict_seq, f2,indent=4)
+    with open("data/Solutions", 'w') as f2:
+        json.dump(solutions, f2,indent=4)
 
 def compare_sol_gantt(basedir, filestr, sample, objective):
 
@@ -306,5 +282,17 @@ def compare_sol_gantt(basedir, filestr, sample, objective):
 
 # comparsolgantt(b,f,s,[1])
 if __name__ == "__main__":
-    expected_sequence(["No_flex_No_setup_5_stages", "No_flex_Yes_setup_5_stages"], [1, 0], exp_measure="mean")
-# compare_sol_gantt(str(pathlib.Path(__file__).parent.resolve()) + "/Benchmark_Doerr/Instances/", "default_problem.json", "", [0, 1])
+    problem_files = []
+    stages = [1, 3]
+    seeds = [11, 13]
+    flexibility = [1.0, 3.0]
+    setups = [0.0, 0.2]
+    orderbook_seeds = [42, 43]
+    for st in stages:
+        for f in flexibility:
+            for s in setups:
+                for seed in seeds:
+                    for o_seed in orderbook_seeds:
+                        problem_files.append(f"Orderbook_f{int(f)}_s{int(s*5)}_st{st}_{seed}_{o_seed}")
+
+    expected_sequence(problem_files, [1, 0])
