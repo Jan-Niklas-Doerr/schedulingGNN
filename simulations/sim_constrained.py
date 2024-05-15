@@ -1,5 +1,5 @@
 import numpy as np
-import json
+import json, math
 from queue import PriorityQueue
 import random, os
 import plotly.figure_factory as ff
@@ -100,7 +100,7 @@ class Env:
     def __init__(self, visualise, verbose, goal="max_order",model=False, test=False, graph=False):
 
 
-        self.DATA_PATH = "data/"
+        self.DATA_PATH = "data/active/"
 
         self.visualise = visualise
         self.verbose = verbose
@@ -134,13 +134,18 @@ class Env:
         self.remaining_orders = len(self.orders)
 
         self.order_id = {}
+
+        id = 0
         for id, order_name in enumerate(self.data["orders"].keys()):
             self.order_id[order_name] = id
         
+        self.order_id["wait"] = id + 1
+        
+        
         self.resource_id = {}
         for id, resource_name in enumerate(self.resources.keys()):
-            self.resource_id[resource_name] = id
-            self.resources[resource_name].set_id(id)
+            self.resource_id[resource_name] = id 
+            self.resources[resource_name].set_id(id )
 
         self.id_resource = {}
         for res in self.resources.values():
@@ -157,9 +162,9 @@ class Env:
         self.success_rate = 0
         self.alive = True
 
-        self.n_actions = len(self.orders) * len(self.resources)
+        self.n_actions = len(self.orders) * len(self.resources) 
         self.n_states = len(self.get_state())
-        self.node_feature_dim = len(self.get_features(self.id_resource[0]))
+        self.node_feature_dim = len(self.get_features(self.id_resource[1]))
         self.stage_connectivity = []
         self.initialize_stages_connectivity()
 
@@ -170,8 +175,22 @@ class Env:
         files = os.listdir(self.DATA_PATH)
         selected_file = random.choice(files)
 
-        with open(os.path.join(self.DATA_PATH, selected_file), 'r') as file:
-            self.data = json.load(file)
+        try:
+            with open(os.path.join(self.DATA_PATH, selected_file), 'r') as file:
+                self.data = json.load(file)
+
+        except json.JSONDecodeError as e:
+            # Log file size and content snippet for debugging
+            if os.path.exists(os.path.join(self.DATA_PATH, selected_file)):
+                with open(os.path.join(self.DATA_PATH, selected_file), 'r') as file:
+                    content = file.read(100)  # Read first 100 characters
+                    size = os.stat(os.path.join(self.DATA_PATH, selected_file)).st_size
+                print(f"Error reading JSON. File size: {size}, Content snippet: {content}")
+            else:
+                print("File not found.")
+            raise
+        
+                
     
     def define_product_operations(self):
 
@@ -250,8 +269,11 @@ class Env:
 
     def action_num_to_pair(self,value):
 
-        o_id = value //  len(self.resources)
-        res_id = value % len(self.resources)
+        if value == len(self.orders) * len(self.resources) :
+            return "wait", "wait"
+
+        o_id = value //  len(self.resources) 
+        res_id = value % len(self.resources) 
 
         order_name = list(self.order_id.keys())[list(self.order_id.values()).index(o_id)]
         resource_name = list(self.resource_id.keys())[list(self.resource_id.values()).index(res_id)]
@@ -259,8 +281,104 @@ class Env:
         return order_name, resource_name
 
     def step(self, action):
+        #print("step done test!")
 
         order_name, resource_name = self.action_num_to_pair(action) if self.model else action
+
+        if order_name == "wait":
+
+            
+               
+            if self.action_list.empty():
+                state = self.get_state_graph() if self.graph else self.get_state()
+
+                if self.goal == "min_time":
+                    reward = - 1 * math.exp(self.time/1000)
+                else:
+                    reward =  -1.5 * self.remaining_orders 
+                #reward = self.success
+                done = not self.alive
+                action_mask = self.get_action_mask()
+                result = self.time if self.goal == "min_time" else self.success_rate
+
+                return state, reward, done, action_mask, result
+        
+            self.time, ord_t = self.action_list.get()
+            rew = 0
+            
+            finished_product = False
+
+            if ord_t.current_stage == self.NR_STAGES + 1 :
+
+                finished_product = True
+                ord_t.is_finished = True
+                self.remaining_orders -= 1
+                
+                if self.verbose:
+                    print("Order No: " , order.order_name, " order product: ",order.product_name , " is produced at time: ", finish_time)
+                    print("Duedate was: ", order.due_date, "\n")
+                
+                if ord_t.due_date >= self.time:
+                    self.success += 1
+                    if self.goal != "min_time" :
+                        rew += 5000
+                
+                if not self.possible_actions and self.action_list.empty() and not self.waiting_action_list:
+                    self.terminate()
+                    
+            else:
+                resources = self.products[ord_t.product_name][ord_t.current_stage][0][1]
+                filtered_resorces = []
+                for res in resources:
+                    if not self.resources[res].is_occupied:
+                        filtered_resorces.append(res)
+
+                if filtered_resorces:
+                    self.possible_actions[ord_t.order_name] = filtered_resorces
+
+            free_resource_name = ord_t.resource
+            ord_t.resource = None
+            free_resource = self.resources[free_resource_name]
+            free_resource.is_occupied = False
+
+            if ord_t.current_stage == 2:
+                #print(self.products)
+                for ord_tt in self.orders_not_initialise.values():
+                    resources = self.products[ord_tt.product_name][ord_tt.current_stage][0][1]
+                    #print(ord_tt.order_name,resources,ord_tt.product_name,ord_tt.current_stage)
+                    if free_resource_name in resources:
+                        
+                        try:
+                            self.possible_actions[ord_tt.order_name].append(free_resource_name)
+                        except KeyError:
+                            self.possible_actions[ord_tt.order_name] = [free_resource_name]
+
+
+            else:
+                for ord_tt in self.waiting_action_list:
+                    resources = self.products[ord_tt.product_name][ord_tt.current_stage][0][1]
+                    if free_resource_name in resources:
+                        try:
+                            self.possible_actions[ord_tt.order_name].append(free_resource_name)
+                        except KeyError:
+                            self.possible_actions[ord_tt.order_name] = [free_resource_name]
+
+            if not finished_product:
+                self.waiting_action_list.append(ord_t)
+
+            state = self.get_state_graph() if self.graph else self.get_state()
+
+            if self.goal == "min_time":
+                reward = - 1 * math.exp(self.time/1000)
+            else:
+                reward =  -1.5 * self.remaining_orders + rew
+            #reward = self.success
+            done = not self.alive
+            action_mask = self.get_action_mask()
+            result = self.time if self.goal == "min_time" else self.success_rate
+
+            return state, reward, done, action_mask, result
+
         order = self.orders[order_name]
         resource = self.resources[resource_name]
 
@@ -305,8 +423,11 @@ class Env:
         for o in deleted:
             self.possible_actions.pop(o)
 
-        while not self.possible_actions:
+        terminated = False
+        while not self.possible_actions and not terminated:
             self.time, ord_t = self.action_list.get()
+            
+            #while True:
 
             finished_product = False
 
@@ -320,16 +441,18 @@ class Env:
                     print("Order No: " , order.order_name, " order product: ",order.product_name , " is produced at time: ", finish_time)
                     print("Duedate was: ", order.due_date, "\n")
                 
-                if order.due_date >= finish_time:
+                if ord_t.due_date >= self.time:
                     self.success += 1
                     if self.goal != "min_time" :
                         rew += 5000
                 
                 if not self.possible_actions and self.action_list.empty() and not self.waiting_action_list:
                     self.terminate()
+                    terminated = True
+                    #print("terminated")
                     break
-                
-                
+            
+            
             else:
                 resources = self.products[ord_t.product_name][ord_t.current_stage][0][1]
                 filtered_resorces = []
@@ -369,12 +492,25 @@ class Env:
 
             if not finished_product:
                 self.waiting_action_list.append(ord_t)
+        
+            """try:
+                temp_time, temp_ord_t = self.action_list.get()
+            except:
+                break
+            if temp_time != self.time:
+                self.action_list.put((temp_time, temp_ord_t ))
+                break
+            else:
+                self.time, ord_t = temp_time, temp_ord_t"""
 
 
         state = self.get_state_graph() if self.graph else self.get_state()
+        #print(state)
 
         if self.goal == "min_time":
-            reward =  -1.5 * self.remaining_orders  - self.time
+            #reward =  -10 * self.remaining_orders  - 100 * self.time
+            reward = - 1 * math.exp(self.time/1000)
+
         else:
             reward =  -1.5 * self.remaining_orders + rew
         #reward = self.success
@@ -385,11 +521,22 @@ class Env:
         return state, reward, done, action_mask, result
 
     def initialize_stages_connectivity(self):
+
         for stage_num in range(self.NR_STAGES -1):
+            
             for res1 in self.stages[stage_num]:
                 for res2 in self.stages[stage_num + 1]:
                     self.stage_connectivity.append((res1.id,res2.id))
                     self.stage_connectivity.append((res2.id,res1.id)) # Bidirectional
+        fin = len(self.resources) 
+
+        for res in self.stages[self.NR_STAGES -1]:
+            self.stage_connectivity.append((res.id,fin))
+            #self.stage_connectivity.append((fin, res.id))
+
+        for res in self.stages[0]:
+            self.stage_connectivity.append((fin+1,res.id))
+            #self.stage_connectivity.append((res.id, fin+1))
                     
 
 #x: Node feature matrix with shape [num_nodes, num_node_features]
@@ -397,8 +544,14 @@ class Env:
 #edge_attr: Edge feature matrix with shape [num_edges, num_edge_features] (optional)
     def get_state_graph(self):
         node_features = []
+
+        
         for id in range(len(self.resources)):
             node_features.append(self.get_features(self.id_resource[id]))
+
+        for i in range(2):
+            node_features.append([0] * len(self.get_features(self.id_resource[0])))
+        
             
         x = torch.tensor(node_features, dtype=torch.float)
 
@@ -420,6 +573,7 @@ class Env:
 
     def get_features(self, resource):
 
+        
         feature_list = []
         feature_list.append(resource.id) #1
         
@@ -452,12 +606,14 @@ class Env:
 
         feature_list.append(resource.free_at) #1
         if resource.order_name != "":
-            feature_list.append(self.orders(resource.order_name).due_date) # 1
+            #feature_list.append(self.orders(resource.order_name).due_date) # 1
             feature_list.append(self.order_id(resource.order_name)) # 1
         # Possible: order path - order remaining estimated time
         else:
+            #feature_list.append(-1) # 1
             feature_list.append(-1) # 1
-            feature_list.append(-1) # 1
+        
+
 
 
         return feature_list
@@ -499,10 +655,13 @@ class Env:
         return np.asarray(state,dtype=np.float32)
         
     def get_action_mask(self):
-        action_mask = np.full(len(self.orders) * len(self.resources), -np.inf)
+        action_mask = np.full(len(self.orders) * len(self.resources ) , -np.inf)
 
         for order, resources in self.possible_actions.items():
             for res in resources:
                 action_mask[self.order_id[order] * len(self.resources) + self.resource_id[res]] = 0
+        
+        #if not self.action_list.empty():
+        #    action_mask[-1] = 0
         return action_mask
     

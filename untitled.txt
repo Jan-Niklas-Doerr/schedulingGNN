@@ -1,0 +1,5 @@
+Working learning rates:
+- lr_actor=7e-6, lr_critic=3e-4, lr_graph=7e-6
+Stable but doesn't converge.
+- lr_actor=4e-5, lr_critic=3e-4, lr_graph=4e-5,
+More stable kinda converge.
