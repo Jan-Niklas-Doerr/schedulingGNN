@@ -233,12 +233,12 @@ def form_orders(orders):
 
 def run( visualise, cleverInitialise, verbose):
     
-    DATA_PATH = "data/"
+    DATA_PATH = "data/active/"
 
     files = os.listdir(DATA_PATH)
     selected_file = random.choice(files)
 
-    with open(os.path.join(DATA_PATH, selected_file), 'r') as file:
+    with open(os.path.join(DATA_PATH, selected_file), 'rb') as file:
         data = json.load(file)
         
    

@@ -92,7 +92,7 @@ class Order:
 class Env:
 
     def __init__(self, visualise ,verbose):
-        self.DATA_PATH = "data/"
+        self.DATA_PATH = "data/active/"
 
         # Accessing data
 
@@ -134,7 +134,7 @@ class Env:
         files = os.listdir(self.DATA_PATH)
         selected_file = random.choice(files)
 
-        with open(os.path.join(self.DATA_PATH, selected_file), 'r') as file:
+        with open(os.path.join(self.DATA_PATH, selected_file), 'rb') as file:
             self.data = json.load(file)
 
     def define_product_operations(self):
