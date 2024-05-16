@@ -55,7 +55,7 @@ class Resource:
 class Order:
 
 
-    def __init__(self, order_name, due_date, product_name ):
+    def __init__(self, order_name, product_name, due_date = 0 ):
         
         self.order_name = order_name
         self.due_date = due_date
@@ -69,7 +69,7 @@ class Order:
         self.current_stage = self.current_stage + 1
 
     def __lt__(self, obj):
-        return self.due_date < obj.due_date # if self.due_date != obj.due_date else self.order_name < obj.order_name
+        return self.due_date < obj.due_date if self.due_date != obj.due_date else self.order_name < obj.order_name
 
     def __le__(self, obj):
         return self.due_date <= obj.due_date
@@ -107,12 +107,12 @@ def define_resource_times(resources,products,data):
         for product1, operations in products.items():
             resource.add_setup_time("", product1, 0)
             for product2 in products:
-                resource.add_setup_time(product1, product2, data["setup_time"][resource.name][product1][product2].get("mean"))
+                resource.add_setup_time(product1, product2, data["setup_time"][resource.name][product1][product2])
 
             for product1_op_stage, product1_op_list in operations.items():
                 for product1_op_name,product1_op_resources in product1_op_list:
                     if resource.name in product1_op_resources:
-                        resource.add_processing_time(product1, product1_op_name, data["processing_time"][product1][product1_op_name][resource.name].get("mean") )
+                        resource.add_processing_time(product1, product1_op_name, data["processing_time"][product1][product1_op_name][resource.name])
              
 def initialize_stages(resources, stages):
     for resource in resources:
@@ -228,7 +228,7 @@ def process_new_orders_same_prod(time, orders, resources, products, action_list,
 def form_orders(orders):
     ordered = PriorityQueue()
     for order_name, args in orders.items():
-        ordered.put(Order(order_name, args["due_date"], args["product"]))
+        ordered.put(Order(order_name, args["product"]))
     return ordered
 
 def run( visualise, cleverInitialise, verbose):

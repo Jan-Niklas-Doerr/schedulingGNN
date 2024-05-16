@@ -62,7 +62,7 @@ class Resource:
 class Order:
 
 
-    def __init__(self, order_name, due_date, product_name ):
+    def __init__(self, order_name,product_name, due_date = 0 ):
         
         self.order_name = order_name
         self.due_date = due_date
@@ -78,7 +78,7 @@ class Order:
         self.current_stage = self.current_stage + 1
 
     def __lt__(self, obj):
-        return self.due_date < obj.due_date # if self.due_date != obj.due_date else self.order_name < obj.order_name
+        return self.due_date < obj.due_date if self.due_date != obj.due_date else self.order_name < obj.order_name
 
     def __le__(self, obj):
         return self.due_date <= obj.due_date
@@ -129,8 +129,10 @@ class Env:
         self.define_resource_times()
 
         self.initialize_stages( [ [] for _ in range(self.NR_STAGES) ]) # [[resource_list_of_stage_1],[#2], ... ]
-        self.orders = {order_name:Order(order_name, args["due_date"], args["product"]) for order_name, args in self.data["orders"].items()}
-        self.orders_not_initialise = {order_name:Order(order_name, args["due_date"], args["product"]) for order_name, args in self.data["orders"].items()}
+        #self.orders = {order_name:Order(order_name, args["due_date"], args["product"]) for order_name, args in self.data["orders"].items()}
+        self.orders = {order_name:Order(order_name, args["product"]) for order_name, args in self.data["orders"].items()}
+        #self.orders_not_initialise = {order_name:Order(order_name, args["due_date"], args["product"]) for order_name, args in self.data["orders"].items()}
+        self.orders_not_initialise = {order_name:Order(order_name, args["product"]) for order_name, args in self.data["orders"].items()}
         self.remaining_orders = len(self.orders)
 
         self.order_id = {}
@@ -164,7 +166,7 @@ class Env:
 
         self.n_actions = len(self.orders) * len(self.resources) 
         self.n_states = len(self.get_state())
-        self.node_feature_dim = len(self.get_features(self.id_resource[1]))
+        self.node_feature_dim = len(self.get_features(self.id_resource[0]))
         self.stage_connectivity = []
         self.initialize_stages_connectivity()
 
@@ -212,15 +214,17 @@ class Env:
             for product1, operations in self.products.items():
                 resource.add_setup_time("", product1, 0)
                 for product2 in self.products:
-                    resource.add_setup_time(product1, product2, self.data["setup_time"][resource.name][product1][product2].get("mean"))
-                    if(self.data["setup_time"][resource.name][product1][product2].get("type") != "Nonexisting"):
-                        self.setup_times.append(self.data["setup_time"][resource.name][product1][product2].get("mean"))
+                    #resource.add_setup_time(product1, product2, self.data["setup_time"][resource.name][product1][product2].get("mean"))
+                    resource.add_setup_time(product1, product2, self.data["setup_time"][resource.name][product1][product2])
+                    #if(self.data["setup_time"][resource.name][product1][product2].get("type") != "Nonexisting"):
+                    self.setup_times.append(self.data["setup_time"][resource.name][product1][product2])
 
                 for product1_op_stage, product1_op_list in operations.items():
                     for product1_op_name,product1_op_resources in product1_op_list:
                         if resource.name in product1_op_resources:
-                            resource.add_processing_time(product1, product1_op_name, self.data["processing_time"][product1][product1_op_name][resource.name].get("mean") )
-                            self.processing_times.append(self.data["processing_time"][product1][product1_op_name][resource.name].get("mean"))
+                            #resource.add_processing_time(product1, product1_op_name, self.data["processing_time"][product1][product1_op_name][resource.name].get("mean") )
+                            resource.add_processing_time(product1, product1_op_name, self.data["processing_time"][product1][product1_op_name][resource.name])
+                            self.processing_times.append(self.data["processing_time"][product1][product1_op_name][resource.name])
                 
     def initialize_stages(self, stages):
         for resource in self.resources.values():
@@ -260,12 +264,6 @@ class Env:
 
         
         return self.get_state(), self.get_action_mask() if not self.graph else self.get_state_graph(), self.get_action_mask()
-
-    def form_orders(orders):
-        ordered = PriorityQueue()
-        for order_name, args in orders.items():
-            ordered.put(Order(order_name, args["due_date"], args["product"]))
-        return ordered
 
     def action_num_to_pair(self,value):
 
@@ -446,7 +444,8 @@ class Env:
                     if self.goal != "min_time" :
                         rew += 5000
                 
-                if not self.possible_actions and self.action_list.empty() and not self.waiting_action_list:
+                #if not self.possible_actions and self.action_list.empty() and not self.waiting_action_list:
+                if self.remaining_orders == 0:
                     self.terminate()
                     terminated = True
                     #print("terminated")
@@ -632,7 +631,8 @@ class Env:
         for _ , order in self.orders.items():
             rem_time = -1 # default rem time for finished orders.
             if not order.is_finished:
-                rem_time = self.time - order.due_date
+                #rem_time = self.time - order.due_date
+                rem_time = 1
             order_remaning_times.append(rem_time)
         
         state += order_remaning_times # remaining times for orders
