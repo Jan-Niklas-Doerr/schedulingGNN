@@ -280,7 +280,7 @@ def run( visualise, cleverInitialise, verbose):
     while not action_list.empty():
 
         time, prod, resource= action_list.get()
-        # print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name, resource.stage)
+        #print(time, prod.product_name,prod.due_date, prod.order_name,prod.current_stage,resource.name, resource.stage)
 
         if prod.current_stage == NR_STAGES + 1 :
 
@@ -293,6 +293,13 @@ def run( visualise, cleverInitialise, verbose):
                 success += 1
 
             check_waiting_list(time, waiting_action_list, action_list,products, resource, df) ## ACTION
+
+            if resource.stage == 1 and not orders.empty():
+                if cleverInitialise:
+                    process_new_orders_same_prod(time, orders, [resource], products, action_list, df) ## ACTION
+                else:
+                    process_new_orders(time, orders, [resource], products, action_list, df) ## ACTION
+ 
             continue
 
         resource.is_occupied = False
@@ -300,8 +307,9 @@ def run( visualise, cleverInitialise, verbose):
 
 
         assigned = False
+        #print("Current stage: ", prod.current_stage -1, " Resource: ", resource.name, " Resource stage: ", resource.stage, " Resource occupied: ", resource.is_occupied)
         for resource_t in stages[prod.current_stage -1]:
-            if not resource_t.is_occupied and resource_t.name in products[prod.product_name][prod.current_stage][0][1] :
+            if not resource_t.is_occupied and  (resource_t.name in products[prod.product_name][prod.current_stage][0][1] ):
                 occupy_resource(time, resource_t, prod, action_list,products,df)  ## ACTION
                 assigned = True
                 break

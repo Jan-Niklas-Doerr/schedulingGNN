@@ -223,8 +223,8 @@
     },
     "resource_stage": {
         "RES_1": 1,
-        "RES_3": 2,
-        "RES_2": 3,
+        "RES_2": 2,
+        "RES_3": 3,
         "RES_4": 4,
         "RES_5": 5
     },
