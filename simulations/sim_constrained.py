@@ -291,7 +291,7 @@ class Env:
                 state = self.get_state_graph() if self.graph else self.get_state()
 
                 if self.goal == "min_time":
-                    reward = - 1 * math.exp(self.time/1000)
+                    reward = - 1 * math.exp(self.time/100)
                 else:
                     reward =  -1.5 * self.remaining_orders 
                 #reward = self.success
@@ -508,7 +508,7 @@ class Env:
 
         if self.goal == "min_time":
             #reward =  -10 * self.remaining_orders  - 100 * self.time
-            reward = - 1 * math.exp(self.time/1000)
+            reward = - 1 * math.exp(self.time/40)
 
         else:
             reward =  -1.5 * self.remaining_orders + rew
