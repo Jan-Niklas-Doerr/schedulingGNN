@@ -1,3 +1,9 @@
 This project is the code for the IDP of Hazar Cakir. 
 
 The aim is to provide a Reinforcement learning framework for scheduling problems using GNNs to deal with arbitrary problem sizes and structures.
+
+This project presents the development and evaluation of advanced computational models to optimize job scheduling on a production line. The project commenced with the creation of a simulation environment to mirror real world operations of machines and orders within a production line, aiming to minimize the completion time or maximize the throughput of orders before their due dates. Initially, an automatic algorithm was implemented to establish a baseline for job scheduling eﬃciency. Subsequently, a deep reinforcement learning system utilizing the Proximal Policy Optimization (PPO) method was developed, which showed promising results. To enhance the model’s adaptability to varying initial conditions and to leverage structural data, traditional neural network layers were replaced with graph neural layers, culminating in a graph neural network-based PPO system. Comprehensive benchmarking of these models demonstrated significant improvements in scheduling eﬃciency, underscoring the potential of graph neural networks in dynamic and flexible problem-solving environments. This project analyzes the performance variations between the models and discusses the implications of these technologies in industrial applications.
+
+The research conducted was part of a interdisciplinary project under the supervision of Prof. Dr. Martin Grunow and M.Sc. Jan-Niklas Dörr. 
+
+You can find final report under Reports folder.
