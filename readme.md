@@ -6,4 +6,4 @@ This project presents the development and evaluation of advanced computational m
 
 The research conducted was part of a interdisciplinary project under the supervision of Prof. Dr. Martin Grunow and M.Sc. Jan-Niklas Dörr. 
 
-You can find final report under Reports folder.
+You can find final report at [Using_Graph_Neural_Networks_to_Solve_Scheduling_Problems.pdf](https://github.com/Jan-Niklas-Doerr/schedulingGNN/blob/3d52916b1dea012711734fd6b71613e5f800da85/Reports/Using_Graph_Neural_Networks_to_Solve_Scheduling_Problems.pdf) under Reports directory.
